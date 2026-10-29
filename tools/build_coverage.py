@@ -18,8 +18,8 @@ OUT = os.path.join(ROOT, "workflows", "coverage.app.json")
 # horizontal 0 front, 90 right, 180 back; vertical negative looks up; zoom 0 wide, 10 close.
 SHOTS = [
     {"name": "01 WIDE", "h": 0, "v": 12, "zoom": 0.5, "text": "Wide establishing shot."},
-    {"name": "02 MEDIUM", "h": 340, "v": 5, "zoom": 6, "text": "Medium shot."},
-    {"name": "03 CLOSE UP", "h": 10, "v": 0, "zoom": 9, "text": "Close up shot."},
+    {"name": "02 MEDIUM", "h": 340, "v": 5, "zoom": 4.5, "text": "Medium shot."},
+    {"name": "03 CLOSE UP", "h": 5, "v": 0, "zoom": 10, "text": "Close up shot."},
     {"name": "04 PROFILE", "h": 60, "v": 0, "zoom": 6, "text": "Side profile medium shot."},
     {"name": "05 LOW ANGLE", "h": 330, "v": -25, "zoom": 6, "text": "Low angle hero shot."},
 ]
@@ -39,6 +39,8 @@ CAMERA_OP = (
     "Shot on an iPhone held in someone's hands: gentle breathing float, small drifting reframes, "
     "natural motion blur on movement, the focus softly shifting between subject and background, "
     "auto exposure gently breathing. Real iPhone video look, natural light, no cinematic grade. "
+    "Natural, subtle performance: small breaths, tiny shifts of the eyes and head, a slight change of "
+    "expression at most, no big smiles, no exaggerated faces, no talking. "
     "The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. "
     "Same characters, same wardrobe, same location and same view out of the windows as the first frame. " + RULES
 )
@@ -85,6 +87,17 @@ FULL_BODY_TEXT = (
     "Straight out of camera iPhone photo, soft natural window light, real skin texture. Only one person."
 )
 FULL_BODY_LORA = "Qwen-Image-Edit-2511_Consistency.safetensors"
+
+# The hero can look pasted in: the person's light does not match the room. This pass relights them to the
+# room's own light and adds contact shadows, which is what sells a person sitting in a place.
+LIGHT_TEXT = (
+    "Relight the person in image 1 so they truly belong in this room: match the direction, color temperature, "
+    "softness and brightness of the room's own light from image 2, the same sunlight and shadows falling across "
+    "them as across the room. Add natural contact shadows where they touch the couch and the floor, and soft "
+    "bounce light from the room. Match the grain, sharpness and focus of the background. Change nothing else: "
+    "the same person, face, pose, clothes, framing and room."
+)
+LIGHT_LORA = "Qwen-Image-Edit-2511-AnyLight.safetensors"
 
 ANGLE_UNET = "qwen_image_edit_2511_bf16.safetensors"
 
@@ -237,12 +250,20 @@ def build():
     hero["widgets_values"][2] = ANGLE_UNET
     hero["widgets_values_named"]["unet_name"] = ANGLE_UNET
     g.link(hero_full, 0, hero, "prompt")
+    lit = g.add(qwen_inst, [1320, -1300])
+    lit["title"] = "MATCH THE LIGHT"
+    wv = lit["widgets_values"]
+    wv[0], wv[1], wv[2], wv[6], wv[-1] = LIGHT_TEXT, True, ANGLE_UNET, LIGHT_LORA, 888
+    lit["widgets_values_named"].update({"prompt": LIGHT_TEXT, "value": True, "unet_name": ANGLE_UNET,
+                                        "lora_name_1": LIGHT_LORA, "seed": 888})
+    g.link(hero, 0, lit, "image")
+    g.link(where, 0, lit, "image2")
     hero_still = g.new("SaveImage", [1320, -900], ["coverage/stills/00_HERO"],
                        inputs=[{"name": "images", "type": "IMAGE"}], size=[340, 300], title="HERO FRAME")
-    g.link(hero, 0, hero_still, "images")
+    g.link(lit, 0, hero_still, "images")
 
     res = g.add(res_t, [0, 1440])
-    res["widgets_values"] = ["16:9 (Widescreen)", 0.5, 32]
+    res["widgets_values"] = ["16:9 (Widescreen)", 0.9, 32]
 
     concat = g.new("ConcatenateVideo", [2900, 0], ["auto"],
                    inputs=[{"name": f"videos.video{k}", "localized_name": f"video{k}", "type": "VIDEO",
@@ -262,7 +283,7 @@ def build():
         cam["widgets_values_named"] = {"horizontal_angle": s["h"], "vertical_angle": s["v"],
                                        "zoom": s["zoom"], "view": "camera"}
         cam["title"] = s["name"] + " angle"
-        g.link(hero, 0, cam, "image")
+        g.link(lit, 0, cam, "image")
 
         angle = g.add(qwen_inst, [880, y])
         angle["title"] = s["name"] + " frame"
@@ -280,7 +301,7 @@ def build():
                              outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 160],
                              title=s["name"] + " match the place")
         g.link(cam, 1, angle_prompt, "string_a")
-        g.link(hero, 0, angle, "image")
+        g.link(lit, 0, angle, "image")
         # The person is already in the hero frame; passing their photo again makes clones.
         g.link(where, 0, angle, "image2")
         g.link(angle_prompt, 0, angle, "prompt")
@@ -305,10 +326,30 @@ def build():
         g.link(res, 0, shot, "value_3")
         g.link(res, 1, shot, "value_4")
 
+        # Fine film grain over every shot: hides the AI smoothness and reads as a real phone sensor.
+        frames = g.new("GetVideoComponents", [2280, y - 200], [],
+                       inputs=[{"name": "video", "type": "VIDEO"}],
+                       outputs=[{"name": "images", "type": "IMAGE"}, {"name": "audio", "type": "AUDIO"},
+                                {"name": "fps", "type": "FLOAT"}], size=[260, 120], title=s["name"] + " frames")
+        g.link(shot, 0, frames, "video")
+        grain = g.new("BetterFilmGrain", [2560, y - 200], [0.5, 0.35, 0.6, 0, 3000 + k],
+                      inputs=[{"name": "image", "type": "IMAGE"}] + [widget_input(n, t) for n, t in
+                              [("scale", "FLOAT"), ("strength", "FLOAT"), ("saturation", "FLOAT"),
+                               ("toe", "FLOAT"), ("seed", "INT")]],
+                      outputs=[{"name": "IMAGE", "type": "IMAGE"}], size=[260, 200], title=s["name"] + " grain")
+        g.link(frames, 0, grain, "image")
+        regrain = g.new("CreateVideo", [2840, y - 200], [24, "auto"],
+                        inputs=[{"name": "images", "type": "IMAGE"}, {"name": "audio", "type": "AUDIO", "shape": 7},
+                                {**widget_input("fps", "FLOAT")}],
+                        outputs=[{"name": "VIDEO", "type": "VIDEO"}], size=[260, 120], title=s["name"] + " with grain")
+        g.link(grain, 0, regrain, "images")
+        g.link(frames, 1, regrain, "audio")
+        g.link(frames, 2, regrain, "fps")
+
         save = g.new("SaveVideo", [2280, y], [f"coverage/shots/{s['name'].replace(' ', '_')}", "auto", "auto"],
                      inputs=[{"name": "video", "type": "VIDEO"}], size=[540, 360], title=s["name"])
-        g.link(shot, 0, save, "video")
-        g.link(shot, 0, concat, f"videos.video{k}")
+        g.link(regrain, 0, save, "video")
+        g.link(regrain, 0, concat, f"videos.video{k}")
         shot_saves.append(save["id"])
 
     subgraphs = (angles_t["definitions"]["subgraphs"] + ltx_t["definitions"]["subgraphs"]
