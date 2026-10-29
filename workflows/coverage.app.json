@@ -1176,7 +1176,7 @@
    },
    "widgets_values": [
     "16:9 (Widescreen)",
-    0.9,
+    1.44,
     32
    ]
   },
@@ -1749,10 +1749,10 @@
     720,
     2000,
     24,
-    "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+    "ltx-2.5-22b-distilled-transformer-bf16.safetensors",
     "ltx-2.5-video-vae-bf16.safetensors",
     "ltx-2.5-audio-vae-bf16.safetensors",
-    "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+    "gemma4-12b-with-proj-ltx-2.5-bf16.safetensors",
     "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
     "gemma4_e2b_it_int8_convrot.safetensors"
    ],
@@ -2432,10 +2432,10 @@
     720,
     2001,
     24,
-    "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+    "ltx-2.5-22b-distilled-transformer-bf16.safetensors",
     "ltx-2.5-video-vae-bf16.safetensors",
     "ltx-2.5-audio-vae-bf16.safetensors",
-    "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+    "gemma4-12b-with-proj-ltx-2.5-bf16.safetensors",
     "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
     "gemma4_e2b_it_int8_convrot.safetensors"
    ],
@@ -3115,10 +3115,10 @@
     720,
     2002,
     24,
-    "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+    "ltx-2.5-22b-distilled-transformer-bf16.safetensors",
     "ltx-2.5-video-vae-bf16.safetensors",
     "ltx-2.5-audio-vae-bf16.safetensors",
-    "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+    "gemma4-12b-with-proj-ltx-2.5-bf16.safetensors",
     "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
     "gemma4_e2b_it_int8_convrot.safetensors"
    ],
@@ -3798,10 +3798,10 @@
     720,
     2003,
     24,
-    "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+    "ltx-2.5-22b-distilled-transformer-bf16.safetensors",
     "ltx-2.5-video-vae-bf16.safetensors",
     "ltx-2.5-audio-vae-bf16.safetensors",
-    "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+    "gemma4-12b-with-proj-ltx-2.5-bf16.safetensors",
     "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
     "gemma4_e2b_it_int8_convrot.safetensors"
    ],
@@ -4481,10 +4481,10 @@
     720,
     2004,
     24,
-    "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+    "ltx-2.5-22b-distilled-transformer-bf16.safetensors",
     "ltx-2.5-video-vae-bf16.safetensors",
     "ltx-2.5-audio-vae-bf16.safetensors",
-    "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+    "gemma4-12b-with-proj-ltx-2.5-bf16.safetensors",
     "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
     "gemma4_e2b_it_int8_convrot.safetensors"
    ],

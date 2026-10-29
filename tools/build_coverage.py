@@ -109,6 +109,12 @@ REFERENCE_TEXT = (
 )
 
 SECONDS = 3
+
+# Best quality video: full bf16 weights instead of the int8 files, and 1600×896. Tested on the rooftop close up:
+# real skin texture, hair strands, calmer expressions. A full run takes about 20 minutes instead of 12.
+LTX_UNET = "ltx-2.5-22b-distilled-transformer-bf16.safetensors"
+LTX_TEXT_ENCODER = "gemma4-12b-with-proj-ltx-2.5-bf16.safetensors"
+VIDEO_MEGAPIXELS = 1.44
 FPS = 24
 
 
@@ -263,7 +269,7 @@ def build():
     g.link(lit, 0, hero_still, "images")
 
     res = g.add(res_t, [0, 1440])
-    res["widgets_values"] = ["16:9 (Widescreen)", 0.9, 32]
+    res["widgets_values"] = ["16:9 (Widescreen)", VIDEO_MEGAPIXELS, 32]
 
     concat = g.new("ConcatenateVideo", [2900, 0], ["auto"],
                    inputs=[{"name": f"videos.video{k}", "localized_name": f"video{k}", "type": "VIDEO",
@@ -321,6 +327,7 @@ def build():
         shot["title"] = s["name"] + " shot"
         wv = shot["widgets_values"]
         wv[0], wv[1], wv[2], wv[5], wv[6] = "", True, SECONDS, 2000 + k, FPS  # prompt enhance looks at each frame
+        wv[7], wv[10] = LTX_UNET, LTX_TEXT_ENCODER
         g.link(angle, 0, shot, "input")
         g.link(prompt, 0, shot, "value")
         g.link(res, 0, shot, "value_3")
