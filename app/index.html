@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coverage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --stage: #0e0b11; --panel: #211927; --panel2: #2c2334; --line: #483c54;
+    --text: #f0f1ec; --dim: #a9afba; --accent: #60a5fa;
+    --c1: #64b5f6; --c2: #b39ddb; --c3: #ff9cf9; --c4: #ffa931; --c5: #81c784;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--stage); color: var(--text); font-family: Inter, system-ui, sans-serif; min-height: 100vh; }
+  .window { max-width: 1240px; margin: 32px auto 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+            box-shadow: 0 30px 80px rgba(0,0,0,.45); overflow: hidden; }
+  .bar { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .tab { margin-left: 14px; display: flex; align-items: center; gap: 8px; padding: 4px 14px; background: var(--panel2); border-radius: 8px; font-size: 13px; color: var(--dim); }
+  .wires { display: flex; gap: 2px; } .wires i { width: 4px; height: 10px; border-radius: 2px; display: block; }
+  .head { display: flex; align-items: baseline; gap: 18px; padding: 22px 32px 0; }
+  .head h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: .02em; }
+  .head span { color: var(--dim); font-size: 14px; }
+  .main { display: grid; grid-template-columns: 340px 1fr; gap: 36px; padding: 22px 32px 32px; }
+  .main > div { min-width: 0; }
+
+  .drop { position: relative; aspect-ratio: 3/4; border-radius: 14px; border: 2px dashed var(--line); background: var(--panel2);
+          display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; transition: border-color .2s; }
+  .drop:hover, .drop.over { border-color: var(--accent); }
+  .drop.filled { border: 2px solid var(--accent); }
+  .drop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .drop .hint { text-align: center; color: var(--dim); font-size: 15px; line-height: 1.5; }
+  .drop .hint b { display: block; color: var(--text); font-size: 18px; margin-bottom: 4px; }
+
+  label.k { display: block; color: var(--dim); font-size: 13px; margin: 0 0 10px; }
+  .tiles { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; }
+  .tiles::-webkit-scrollbar { height: 6px; } .tiles::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+  .tile { flex: 0 0 116px; scroll-snap-align: start; cursor: pointer; text-align: center; }
+  .tile .img { width: 116px; height: 116px; border-radius: 14px; background: var(--panel2) center/cover no-repeat; border: 2px solid transparent;
+               box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); transition: transform .15s, border-color .15s; display: flex; align-items: center; justify-content: center; }
+  .tile:hover .img { transform: translateY(-2px); }
+  .tile.on .img { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(96,165,250,.25); }
+  .tile .name { margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--dim); white-space: nowrap; }
+  .tile.on .name { color: var(--text); }
+  .tile.custom .img { border: 2px dashed var(--line); font-size: 34px; color: var(--dim); }
+  .custombox { display: none; gap: 10px; margin-top: 6px; align-items: center; }
+  .custombox.show { display: flex; }
+  .custombox input[type=text] { flex: 1; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; color: var(--text);
+                                font: inherit; padding: 12px 14px; outline: none; }
+  .custombox input[type=text]:focus { border-color: var(--accent); }
+  .btn2 { background: var(--panel2); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 11px 14px; font: inherit; font-size: 14px; cursor: pointer; white-space: nowrap; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 0; }
+  .chip { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); font-size: 12px; font-weight: 600; letter-spacing: .04em; transition: all .3s; }
+  .chip.busy { animation: pulse 1.4s infinite; }
+  .chip.done { color: #171a21; border-color: transparent; }
+  @keyframes pulse { 50% { opacity: .45; } }
+
+  .row { display: flex; align-items: center; justify-content: space-between; margin-top: 28px; gap: 20px; }
+  .status { color: var(--dim); font-size: 14px; min-height: 20px; }
+  .run { background: #3a4f7a; color: var(--text); border: 0; border-radius: 999px; padding: 18px 64px; font: inherit; font-size: 18px; font-weight: 700; cursor: pointer; transition: background .2s, transform .1s; }
+  .run.ready { background: var(--accent); color: #0e1320; }
+  .run:active { transform: scale(.97); }
+  .run:disabled { cursor: default; opacity: .7; }
+
+  .shots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 22px; }
+  .shot { aspect-ratio: 16/9; border-radius: 10px; background: var(--panel2); overflow: hidden; border: 2px solid transparent; position: relative; }
+  .shot img, .shot video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .shot .lbl { position: absolute; left: 6px; bottom: 6px; font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 6px; color: #171a21; }
+  .scene { display: none; margin-top: 18px; }
+  .scene.show { display: block; }
+  .scene video { width: 100%; border-radius: 14px; display: block; background: #000; }
+  .scene .k { display: flex; justify-content: space-between; align-items: center; }
+  .scene a { color: var(--accent); font-size: 13px; text-decoration: none; }
+  .foot { text-align: center; color: var(--dim); font-size: 13px; margin: 18px 0 30px; display: flex; gap: 8px; justify-content: center; align-items: center; }
+  .foot .logo { width: 18px; height: 18px; border-radius: 4px; background: #f0ff41; color: #171a21; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
+
+  @media (max-width: 900px) {
+    .window { margin: 0; border-radius: 0; border-left: 0; border-right: 0; }
+    .main { grid-template-columns: 1fr; padding: 16px; gap: 22px; }
+    .head { padding: 18px 16px 0; flex-wrap: wrap; gap: 6px 14px; }
+    .drop { max-width: 300px; }
+    .shots { grid-template-columns: repeat(3, 1fr); }
+    .run { padding: 16px 44px; }
+  }
+</style>
+</head>
+<body>
+<div class="window">
+  <div class="bar">
+    <span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>
+    <span class="tab"><span class="wires"><i style="background:var(--c1)"></i><i style="background:var(--c2)"></i><i style="background:var(--c3)"></i><i style="background:var(--c4)"></i><i style="background:var(--c5)"></i></span>Coverage</span>
+  </div>
+  <div class="head"><h1>COVERAGE</h1><span>one photo in, the whole scene out</span></div>
+
+  <div class="main">
+    <div>
+      <div class="drop" id="drop">
+        <div class="hint"><b>Your photo</b>a selfie is enough<br>drop it here or click</div>
+      </div>
+      <input type="file" id="file" accept="image/*" hidden>
+    </div>
+
+    <div>
+      <label class="k">Where</label>
+      <div class="tiles" id="tiles"></div>
+      <div class="custombox" id="custombox">
+        <input type="text" id="customText" placeholder="Type your place, like a train station in Mumbai">
+        <button class="btn2" id="customPhoto">Use a photo</button>
+        <input type="file" id="placeFile" accept="image/*" hidden>
+      </div>
+
+      <label class="k" style="margin-top:26px">Your crew shoots</label>
+      <div class="chips" id="chips" style="margin-top:0"></div>
+
+      <div class="shots" id="shots"></div>
+
+      <div class="scene" id="scene">
+        <div class="k"><label class="k">The scene</label><a id="dl" download>Download</a></div>
+        <video id="sceneVideo" controls playsinline></video>
+      </div>
+
+      <div class="row">
+        <div class="status" id="status">Add your photo and pick a place.</div>
+        <button class="run" id="run">Run</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="foot"><span class="logo">C</span>made in ComfyUI · every model open weights</div>
+
+<script>
+const SHOTS = [["WIDE","--c1"],["MEDIUM","--c2"],["CLOSE UP","--c3"],["PROFILE","--c4"],["LOW ANGLE","--c5"]];
+const $ = id => document.getElementById(id);
+const state = { selfie: null, place: null, placeImage: null };
+
+// shot chips and empty frames
+$("chips").innerHTML = SHOTS.map(([n]) => `<span class="chip">${n}</span>`).join("");
+$("shots").innerHTML = SHOTS.map(() => `<div class="shot"></div>`).join("");
+
+// place tiles
+fetch("/api/places").then(r => r.json()).then(places => {
+  $("tiles").innerHTML = places.map(p =>
+    `<div class="tile" data-id="${p.id}"><div class="img" style="background-image:url('places/thumbs/${p.id}.jpg')"></div><div class="name">${p.name}</div></div>`
+  ).join("") + `<div class="tile custom" data-id="custom"><div class="img">+</div><div class="name">Your Place</div></div>`;
+  document.querySelectorAll(".tile").forEach(t => t.onclick = () => pick(t));
+});
+
+function pick(t) {
+  document.querySelectorAll(".tile").forEach(x => x.classList.toggle("on", x === t));
+  state.place = t.dataset.id;
+  $("custombox").classList.toggle("show", state.place === "custom");
+  if (state.place === "custom") $("customText").focus();
+  ready();
+}
+
+function readFile(f, cb) { const r = new FileReader(); r.onload = () => cb(r.result); r.readAsDataURL(f); }
+
+// selfie drop
+const drop = $("drop");
+drop.onclick = () => $("file").click();
+$("file").onchange = e => e.target.files[0] && setSelfie(e.target.files[0]);
+drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); e.dataTransfer.files[0] && setSelfie(e.dataTransfer.files[0]); };
+function setSelfie(f) {
+  readFile(f, url => { state.selfie = url; drop.innerHTML = `<img src="${url}">`; drop.classList.add("filled"); ready(); });
+}
+
+// your own place
+$("customPhoto").onclick = () => $("placeFile").click();
+$("placeFile").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  readFile(f, url => {
+    state.placeImage = url;
+    document.querySelector('.tile.custom .img').style.backgroundImage = `url('${url}')`;
+    document.querySelector('.tile.custom .img').textContent = "";
+    $("customPhoto").textContent = "Photo added";
+    ready();
+  });
+};
+$("customText").oninput = ready;
+
+function canRun() {
+  if (!state.selfie || !state.place) return false;
+  if (state.place === "custom") return !!(state.placeImage || $("customText").value.trim());
+  return true;
+}
+function ready() { $("run").classList.toggle("ready", canRun()); if (canRun()) $("status").textContent = "Ready. Press Run."; }
+
+// run
+$("run").onclick = async () => {
+  if (!canRun()) { $("status").textContent = !state.selfie ? "Add your photo first." : "Pick a place first."; return; }
+  $("run").disabled = true; $("run").textContent = "Shooting";
+  document.querySelectorAll(".chip").forEach(c => { c.className = "chip busy"; c.style.background = ""; });
+  $("shots").innerHTML = SHOTS.map(() => `<div class="shot"></div>`).join("");
+  $("scene").classList.remove("show");
+  const body = { selfie: state.selfie };
+  if (state.place === "custom") { body.place_image = state.placeImage; body.place_text = $("customText").value.trim(); }
+  else body.place_id = state.place;
+  const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => r.json());
+  if (!r.id) { fail(r.error || "Could not start"); return; }
+  poll(r.id, Date.now());
+};
+
+function poll(id, t0) {
+  fetch(`/api/run/${id}`).then(r => r.json()).then(r => {
+    const f = r.files || {}, mins = Math.floor((Date.now() - t0) / 60000);
+    SHOTS.forEach(([n, c], i) => {
+      const box = $("shots").children[i], chip = $("chips").children[i];
+      const vid = f[`shot_${i + 1}`], still = f[`still_${i + 1}`];
+      if (vid && box.dataset.v !== "1") {
+        box.innerHTML = `<video src="${vid}" autoplay loop muted playsinline></video><span class="lbl" style="background:var(${c})">${n}</span>`;
+        box.dataset.v = "1"; box.style.borderColor = `var(${c})`;
+        chip.className = "chip done"; chip.style.background = `var(${c})`;
+      } else if (still && !box.dataset.s) {
+        box.innerHTML = `<img src="${still}"><span class="lbl" style="background:var(${c})">${n}</span>`; box.dataset.s = "1";
+      }
+    });
+    const shotsDone = SHOTS.filter((_, i) => f[`shot_${i + 1}`]).length;
+    let msg = shotsDone ? `${shotsDone} of 5 shots in the can` : (f.still_1 ? "Lighting and rolling" : f.hero ? "Placing the cameras" : f.full_body ? "Putting you in the place" : "Finding your full look");
+    $("status").textContent = `${msg} · ${mins} min`;
+    if (f.scene) {
+      $("sceneVideo").src = f.scene; $("dl").href = f.scene; $("scene").classList.add("show");
+    }
+    if (r.status === "done") { $("status").textContent = `That's a wrap · ${mins} min`; reset(); return; }
+    if (r.status === "failed") { fail(r.error); return; }
+    setTimeout(() => poll(id, t0), 4000);
+  }).catch(() => setTimeout(() => poll(id, t0), 6000));
+}
+function fail(msg) { $("status").textContent = "Something broke: " + (msg || "unknown"); document.querySelectorAll(".chip").forEach(c => c.classList.remove("busy")); reset(); }
+function reset() { $("run").disabled = false; $("run").textContent = "Run"; }
+</script>
+</body>
+</html>

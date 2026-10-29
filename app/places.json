@@ -1,0 +1,18 @@
+[
+  {"id": "01_rooftop_ny", "name": "Rooftop NY", "place": "A Manhattan rooftop at sunset with the skyline behind", "moment": "leaning on the railing, the wind in their hair, calm"},
+  {"id": "02_central_park", "name": "Central Park", "place": "A path through Central Park in autumn with old benches and golden leaves", "moment": "walking slowly along the path, looking up at the trees"},
+  {"id": "03_neon_night", "name": "Neon Night", "place": "A city street at night after rain, lit by colorful neon shop signs, wet pavement reflections", "moment": "walking slowly through the glow, glancing at the signs"},
+  {"id": "04_club_hong_kong", "name": "Club Hong Kong", "place": "A small Hong Kong nightclub with colored lights and haze over an empty dance floor", "moment": "dancing slowly to the music, eyes half closed, lost in it"},
+  {"id": "05_living_room", "name": "Living Room", "place": "A cozy apartment living room with a worn couch, plants and soft window light", "moment": "relaxing on the couch, smiling to themselves"},
+  {"id": "06_kitchen", "name": "Kitchen", "place": "A small apartment kitchen with tiled walls and morning sun through the window", "moment": "leaning on the counter in the morning light, half awake"},
+  {"id": "07_coffee_shop", "name": "Coffee Shop", "place": "A warm neighborhood coffee shop with wooden tables and afternoon light", "moment": "sitting at a table by the window, lost in thought"},
+  {"id": "08_brooklyn_street", "name": "Brooklyn Street", "place": "A leafy Brooklyn street of brownstones at golden hour", "moment": "walking slowly down the sidewalk, glancing around"},
+  {"id": "09_paris_rain", "name": "Paris Rain", "place": "Inside a Paris cafe by the window on a rainy evening, the wet street outside", "moment": "sitting by the window, watching the rain"},
+  {"id": "10_subway", "name": "Subway", "place": "Inside a New York subway car at night under fluorescent light", "moment": "sitting on the bench seat, swaying gently with the train"},
+  {"id": "11_laundromat", "name": "Laundromat", "place": "A late night laundromat with rows of washing machines under fluorescent light", "moment": "sitting on a washing machine, waiting, a little bored"},
+  {"id": "12_diner", "name": "Diner", "place": "An old American diner at night with red vinyl booths and a long counter", "moment": "sitting in a booth late at night, tired and quiet"},
+  {"id": "13_beach_sunset", "name": "Beach Sunset", "place": "A quiet beach at sunset with soft waves and wet sand", "moment": "walking barefoot along the waterline"},
+  {"id": "14_bookstore", "name": "Bookstore", "place": "A cramped old bookstore with tall wooden shelves and warm lamps", "moment": "browsing the shelves slowly, head tilted"},
+  {"id": "15_tokyo_alley", "name": "Tokyo Alley", "place": "A narrow Tokyo alley at night with paper lanterns and tiny bars", "moment": "walking slowly under the lanterns, taking it all in"},
+  {"id": "16_desert_road", "name": "Desert Road", "place": "An empty desert highway at golden hour with mountains far away", "moment": "standing in the middle of the empty road, looking at the horizon"}
+]
