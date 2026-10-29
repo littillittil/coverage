@@ -4,7 +4,7 @@
 
 On a film set, the director never shoots just one angle. The crew shoots *coverage*: a wide, a medium, a close up, a profile, a low angle. That is what lets an editor cut a scene.
 
-AI video gives you one shot at a time, and every new shot drifts: a new face, new light, a different room. Coverage fixes that. Give it one photo of a person, pick a situation, press Run. It builds the place, puts the person in it, plans five camera positions, keeps every shot matched, gives each one a human camera operator, and cuts them into a scene.
+AI video gives you one shot at a time, and every new shot drifts: a new face, new light, a different room. Coverage fixes that. Give it one photo of a person (a selfie is enough), pick a situation, press Run. It builds the place, puts the person in it, plans five camera positions, keeps every shot matched, gives each one a human camera operator, and cuts them into a scene.
 
 Built for the ComfyUI Open Source Higgsfield competition by a working cinematographer. **Every model is open weights.** LTX is the video model.
 
@@ -43,6 +43,8 @@ situation ──► FLUX 2: build the place ──► Qwen Edit 2511: put the pe
 **Comfy Cloud (fastest):** open [cloud.comfy.org](https://cloud.comfy.org), drag `workflows/coverage.app.json` onto the page, add a photo, pick a situation, press Run. Every model is already on Comfy Cloud.
 
 **Your own ComfyUI:** update to the latest ComfyUI (it uses the core `CameraAngle`, `CustomCombo`, `ResolutionSelector` and `ConcatenateVideo` nodes), drag in the workflow, and download the models listed in the official templates `image_flux2_text_to_image`, `template_qwen_multiangle.app` and `video_ltx2_5_i2v` (Comfy's template browser links every file).
+
+**No photo handy?** Try one of the sample people in `examples/people`: Maya, Kenji, Priya and Mateo. They were made with FLUX 2 inside ComfyUI, so they are open weights too. Each is a plain selfie, because that is all the app needs.
 
 ## Make it yours
 
