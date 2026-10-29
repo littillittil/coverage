@@ -91,11 +91,7 @@ FULL_BODY_LORA = "Qwen-Image-Edit-2511_Consistency.safetensors"
 # The hero can look pasted in: the person's light does not match the room. This pass relights them to the
 # room's own light and adds contact shadows, which is what sells a person sitting in a place.
 LIGHT_TEXT = (
-    "Relight the person in image 1 so they truly belong in this room: match the direction, color temperature, "
-    "softness and brightness of the room's own light from image 2, the same sunlight and shadows falling across "
-    "them as across the room. Add natural contact shadows where they touch the couch and the floor, and soft "
-    "bounce light from the room. Match the grain, sharpness and focus of the background. Change nothing else: "
-    "the same person, face, pose, clothes, framing and room."
+    "Relight the person in image 1 so they truly belong in the place from image 2: match the direction, color temperature, softness and brightness of its own light, the same light and shadows falling across them as across the place. Add natural contact shadows where they touch the ground, and soft bounce light from their surroundings. Match the grain, sharpness and focus of the background. Change nothing else: the same person, face, pose, clothes, framing and place."
 )
 LIGHT_LORA = "Qwen-Image-Edit-2511-AnyLight.safetensors"
 
