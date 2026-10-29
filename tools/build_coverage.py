@@ -20,7 +20,7 @@ SHOTS = [
     {"name": "01 WIDE", "h": 0, "v": 12, "zoom": 0.5, "text": "Wide establishing shot."},
     {"name": "02 MEDIUM", "h": 340, "v": 5, "zoom": 6, "text": "Medium shot."},
     {"name": "03 CLOSE UP", "h": 10, "v": 0, "zoom": 9, "text": "Close up shot."},
-    {"name": "04 INSERT", "h": 0, "v": 35, "zoom": 10, "text": "Insert close up on the hands and what they are holding."},
+    {"name": "04 PROFILE", "h": 60, "v": 0, "zoom": 6, "text": "Side profile medium shot."},
     {"name": "05 LOW ANGLE", "h": 330, "v": -25, "zoom": 6, "text": "Low angle hero shot."},
 ]
 
@@ -41,13 +41,33 @@ CAMERA_OP = (
     "Same characters, same wardrobe, same location and same view out of the windows as the first frame. " + RULES
 )
 
-DEFAULT_SCENE = "She pours coffee from the moka pot into her mug, takes a first sip and smiles to herself before heading out."
 
-# Puts the person from WHO into the place from WHERE. The scene line is added after it.
+# FLUX 2 builds the place from the situation. The situation is added after this.
+PLACE_TEXT = (
+    "Straight out of camera iPhone photo of a real place, completely empty of people, wide view at eye level, "
+    "natural light, real textures, lived in, no text, no logos, no watermarks. "
+    "The place where this happens (show only the place, no person):"
+)
+# The situation menu. One pick sets both the place (FLUX 2) and what happens (hero frame and shots).
+# Simple lifestyle moments with the face visible work best; prop actions (pouring coffee) and
+# facing away (looking out a window) go wrong.
+SITUATIONS = [
+    "Relaxing on a green velvet couch in a sunny East Village apartment with a red brick wall, smiling to themselves",
+    "Walking slowly down a leafy Brooklyn street at golden hour past brownstones, glancing around",
+    "Sitting on a park bench in Central Park in autumn, watching people go by, thoughtful",
+    "Leaning on a rooftop railing in Manhattan at sunset, the wind in their hair, calm",
+    "Sitting in a booth in a neon lit Hong Kong diner at night, laughing softly",
+    "Sitting by a rainy cafe window in Paris, watching the street with a soft smile",
+]
+
+# Edits the person's own photo (image 1) into the place (image 2). The model holds on to image 1 far more
+# than image 2, so the person must be image 1 or their face gets lost. The situation is added after it.
 HERO_TEXT = (
-    "Put the person from image 2 into the place in image 1, full body in the frame, naturally lit by the light "
-    "of the place. Keep the place exactly the same. Same face, hair and wardrobe as image 2, the person appears "
-    "only once. Real candid photo, not posed, not looking at the camera. " + RULES + " In this moment:"
+    "Keep this exact person from image 1: the same face, hairstyle, hair color, skin tone, body and clothes. "
+    "Replace the white wall and everything around them with the place from image 2, filling the whole frame "
+    "edge to edge, naturally lit by the light of that place. Change only their pose to fit the moment. "
+    "The face is clearly visible, turned about three quarters toward the camera, not looking into the lens. "
+    "Real candid photo, not posed. " + RULES + " In this moment:"
 )
 HERO_LORA = "Qwen-Image-Edit-2511_Consistency.safetensors"
 
@@ -112,9 +132,11 @@ def widget_input(name, typ):
 def build():
     angles_t = load("template_qwen_multiangle.app.json")
     ltx_t = load("video_ltx2_5_i2v.json")
+    flux_t = load("image_flux2_text_to_image.json")
     by_id = lambda t, i: next(n for n in t["nodes"] if n["id"] == i)
     qwen_inst, cam_t = by_id(angles_t, 219), by_id(angles_t, 221)
     ltx_inst, res_t = by_id(ltx_t, 398), by_id(ltx_t, 403)
+    flux_inst = by_id(flux_t, 98)
 
     g = Graph()
     def photo(label, title, y):
@@ -124,25 +146,44 @@ def build():
                      size=[340, 360], title=title)
 
     who = photo("who (a photo of the person)", "WHO", 0)
-    where = photo("where (a photo of the place)", "WHERE", 420)
-    scene = g.new("PrimitiveStringMultiline", [0, 840], [DEFAULT_SCENE],
-                  inputs=[{**widget_input("value", "STRING"), "label": "what happens"}],
-                  outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 180],
-                  title="WHAT HAPPENS")
+    situation = g.new("CustomCombo", [-900, 0], [SITUATIONS[0], 0] + SITUATIONS + [""],
+                      inputs=[{**widget_input("choice", "COMBO"), "label": "situation"}],
+                      outputs=[{"name": "STRING", "type": "STRING"}, {"name": "INDEX", "type": "INT"}],
+                      size=[420, 400], title="SITUATION")
 
+    # Step 0: FLUX 2 builds the place from one line.
+    place_prompt = g.new("StringConcatenate", [-900, 700], [PLACE_TEXT, "", " "],
+                         inputs=[widget_input("string_a", "STRING"), widget_input("string_b", "STRING"),
+                                 widget_input("delimiter", "STRING")],
+                         outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 200], title="PLACE PROMPT")
+    g.link(situation, 0, place_prompt, "string_b")
+    where = g.add(flux_inst, [-450, 420])
+    where["title"] = "MAKE THE PLACE"
+    where["widgets_values"] = ["", 1344, 768, "flux2_dev_fp8mixed.safetensors", "mistral_3_small_flux2_bf16.safetensors",
+                               "full_encoder_small_decoder.safetensors", "Flux_2-Turbo-LoRA_comfyui.safetensors", True, 4242]
+    g.link(place_prompt, 0, where, "text")
+    place_still = g.new("SaveImage", [-450, 900], ["coverage/stills/00_PLACE"],
+                        inputs=[{"name": "images", "type": "IMAGE"}], size=[340, 300], title="THE PLACE")
+    g.link(where, 0, place_still, "images")
     # Step 1: put the person in the place, doing the thing. This is the hero frame.
     hero_prompt = g.new("StringConcatenate", [420, -900], [HERO_TEXT, "", " "],
                         inputs=[widget_input("string_a", "STRING"), widget_input("string_b", "STRING"),
                                 widget_input("delimiter", "STRING")],
                         outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 200], title="HERO PROMPT")
-    g.link(scene, 0, hero_prompt, "string_b")
+    g.link(situation, 0, hero_prompt, "string_b")
     hero = g.add(qwen_inst, [880, -900])
     hero["title"] = "MAKE THE HERO FRAME"
     hero["widgets_values"][6] = HERO_LORA
     hero["widgets_values"][-1] = 777
     hero["widgets_values_named"].update({"lora_name_1": HERO_LORA, "seed": 777})
-    g.link(where, 0, hero, "image")
-    g.link(who, 0, hero, "image2")
+    widescreen = g.new("ResizeAndPadImage", [420, -1300], [1344, 768, "white", "area"],
+                       inputs=[{"name": "image", "type": "IMAGE"}, widget_input("target_width", "INT"),
+                               widget_input("target_height", "INT"), widget_input("padding_color", "COMBO"),
+                               widget_input("interpolation", "COMBO")],
+                       outputs=[{"name": "IMAGE", "type": "IMAGE"}], size=[320, 160], title="WIDESCREEN THE PHOTO")
+    g.link(who, 0, widescreen, "image")
+    g.link(widescreen, 0, hero, "image")
+    g.link(where, 0, hero, "image2")
     g.link(hero_prompt, 0, hero, "prompt")
     hero_still = g.new("SaveImage", [1320, -900], ["coverage/stills/00_HERO"],
                        inputs=[{"name": "images", "type": "IMAGE"}], size=[340, 300], title="HERO FRAME")
@@ -195,7 +236,7 @@ def build():
                                widget_input("delimiter", "STRING")],
                        outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 200],
                        title=s["name"] + " camera op")
-        g.link(scene, 0, prompt, "string_a")
+        g.link(situation, 0, prompt, "string_a")
 
         shot = g.add(ltx_inst, [1720, y])
         shot["title"] = s["name"] + " shot"
@@ -212,7 +253,8 @@ def build():
         g.link(shot, 0, concat, f"videos.video{k}")
         shot_saves.append(save["id"])
 
-    subgraphs = angles_t["definitions"]["subgraphs"] + ltx_t["definitions"]["subgraphs"]
+    subgraphs = (angles_t["definitions"]["subgraphs"] + ltx_t["definitions"]["subgraphs"]
+                 + flux_t["definitions"]["subgraphs"])
     wf = {
         "id": "c0e7a6e0-c0de-4c0e-8a6e-c00e2a9e0001",
         "revision": 0,
@@ -226,8 +268,8 @@ def build():
         "extra": {
             "linearMode": True,
             "linearData": {
-                "inputs": [[who["id"], "image"], [where["id"], "image"], [scene["id"], "value"]],
-                "outputs": [scene_out["id"], hero_still["id"]] + shot_saves,
+                "inputs": [[who["id"], "image"], [situation["id"], "choice"]],
+                "outputs": [scene_out["id"], place_still["id"], hero_still["id"]] + shot_saves,
             },
             "ds": {"scale": 0.45, "offset": [100, 100]},
         },
