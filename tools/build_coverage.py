@@ -1,6 +1,6 @@
 """Builds workflows/coverage.app.json from the two official Comfy templates.
 
-One hero frame in. Five camera angles out (Qwen Image Edit 2511 + multiple angles LoRA),
+A person and a place in. A hero frame, then five camera angles (Qwen Image Edit 2511 + multiple angles LoRA),
 each one animated with LTX 2.5 as a handheld shot, then cut together into one scene.
 
 Usage: python3 tools/build_coverage.py
@@ -20,20 +20,44 @@ SHOTS = [
     {"name": "01 WIDE", "h": 0, "v": 12, "zoom": 0.5, "text": "Wide establishing shot."},
     {"name": "02 MEDIUM", "h": 340, "v": 5, "zoom": 6, "text": "Medium shot."},
     {"name": "03 CLOSE UP", "h": 10, "v": 0, "zoom": 9, "text": "Close up shot."},
-    {"name": "04 REVERSE", "h": 180, "v": 5, "zoom": 4, "text": "Reverse angle, looking back the other way."},
+    {"name": "04 INSERT", "h": 0, "v": 35, "zoom": 10, "text": "Insert close up on the hands and what they are holding."},
     {"name": "05 LOW ANGLE", "h": 330, "v": -25, "zoom": 6, "text": "Low angle hero shot."},
 ]
+
+# The rule book: what must never happen. These models run at CFG 1 (fast distilled), where a negative
+# prompt is ignored, so the rules are written into every positive prompt instead.
+RULES = (
+    "Rules: every person appears only once, no duplicates, no twins, no extra people. "
+    "Natural human anatomy, two hands with five fingers, true to life scale between people and objects. "
+    "Phones, screens and papers are seen from the back or edge on and held the right way round. "
+    "No text, no logos, no watermarks. No morphing faces, no melting objects."
+)
 
 # The operator. Locked off AI shots read as AI, so every shot gets a human on the camera.
 CAMERA_OP = (
     "Shot handheld by a camera operator: gentle breathing float, small drifting reframes, "
     "natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. "
-    "Same characters, same wardrobe, same location and same view out of the windows as the first frame."
+    "The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. "
+    "Same characters, same wardrobe, same location and same view out of the windows as the first frame. " + RULES
 )
 
-DEFAULT_SCENE = "The scene comes to life. Keep the same characters, the same light and the same location."
+DEFAULT_SCENE = "She pours coffee from the moka pot into her mug, takes a first sip and smiles to herself before heading out."
 
-SECONDS = 4
+# Puts the person from WHO into the place from WHERE. The scene line is added after it.
+HERO_TEXT = (
+    "Put the person from image 2 into the place in image 1, full body in the frame, naturally lit by the light "
+    "of the place. Keep the place exactly the same. Same face, hair and wardrobe as image 2, the person appears "
+    "only once. Real candid photo, not posed, not looking at the camera. " + RULES + " In this moment:"
+)
+HERO_LORA = "Qwen-Image-Edit-2511_Consistency.safetensors"
+
+# Tells the angle model to keep the hero's people and check the place against WHERE.
+REFERENCE_TEXT = (
+    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). "
+    "Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. " + RULES
+)
+
+SECONDS = 3
 FPS = 24
 
 
@@ -93,15 +117,38 @@ def build():
     ltx_inst, res_t = by_id(ltx_t, 398), by_id(ltx_t, 403)
 
     g = Graph()
-    hero = g.new("LoadImage", [0, 0], ["hero.png", "image"],
-                 inputs=[{**widget_input("image", "COMBO"), "label": "hero frame"}],
-                 outputs=[{"name": "IMAGE", "type": "IMAGE"}, {"name": "MASK", "type": "MASK"}],
-                 size=[340, 420], title="HERO FRAME")
-    scene = g.new("PrimitiveStringMultiline", [0, 480], [DEFAULT_SCENE],
+    def photo(label, title, y):
+        return g.new("LoadImage", [0, y], [title.lower() + ".png", "image"],
+                     inputs=[{**widget_input("image", "COMBO"), "label": label}],
+                     outputs=[{"name": "IMAGE", "type": "IMAGE"}, {"name": "MASK", "type": "MASK"}],
+                     size=[340, 360], title=title)
+
+    who = photo("who (a photo of the person)", "WHO", 0)
+    where = photo("where (a photo of the place)", "WHERE", 420)
+    scene = g.new("PrimitiveStringMultiline", [0, 840], [DEFAULT_SCENE],
                   inputs=[{**widget_input("value", "STRING"), "label": "what happens"}],
                   outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 180],
-                  title="WHAT HAPPENS IN THE SCENE")
-    res = g.add(res_t, [0, 720])
+                  title="WHAT HAPPENS")
+
+    # Step 1: put the person in the place, doing the thing. This is the hero frame.
+    hero_prompt = g.new("StringConcatenate", [420, -900], [HERO_TEXT, "", " "],
+                        inputs=[widget_input("string_a", "STRING"), widget_input("string_b", "STRING"),
+                                widget_input("delimiter", "STRING")],
+                        outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 200], title="HERO PROMPT")
+    g.link(scene, 0, hero_prompt, "string_b")
+    hero = g.add(qwen_inst, [880, -900])
+    hero["title"] = "MAKE THE HERO FRAME"
+    hero["widgets_values"][6] = HERO_LORA
+    hero["widgets_values"][-1] = 777
+    hero["widgets_values_named"].update({"lora_name_1": HERO_LORA, "seed": 777})
+    g.link(where, 0, hero, "image")
+    g.link(who, 0, hero, "image2")
+    g.link(hero_prompt, 0, hero, "prompt")
+    hero_still = g.new("SaveImage", [1320, -900], ["coverage/stills/00_HERO"],
+                       inputs=[{"name": "images", "type": "IMAGE"}], size=[340, 300], title="HERO FRAME")
+    g.link(hero, 0, hero_still, "images")
+
+    res = g.add(res_t, [0, 1440])
     res["widgets_values"] = ["16:9 (Widescreen)", 0.5, 32]
 
     concat = g.new("ConcatenateVideo", [2900, 0], ["auto"],
@@ -128,8 +175,16 @@ def build():
         angle["title"] = s["name"] + " frame"
         angle["widgets_values"][-1] = 1000 + k
         angle["widgets_values_named"]["seed"] = 1000 + k
+        angle_prompt = g.new("StringConcatenate", [880, y + 700], ["", REFERENCE_TEXT, " "],
+                             inputs=[widget_input("string_a", "STRING"), widget_input("string_b", "STRING"),
+                                     widget_input("delimiter", "STRING")],
+                             outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 160],
+                             title=s["name"] + " match the place")
+        g.link(cam, 1, angle_prompt, "string_a")
         g.link(hero, 0, angle, "image")
-        g.link(cam, 1, angle, "prompt")
+        # The person is already in the hero frame; passing their photo again makes clones.
+        g.link(where, 0, angle, "image2")
+        g.link(angle_prompt, 0, angle, "prompt")
 
         still = g.new("SaveImage", [1320, y], [f"coverage/stills/{s['name'].replace(' ', '_')}"],
                       inputs=[{"name": "images", "type": "IMAGE"}], size=[340, 300], title=s["name"] + " still")
@@ -145,7 +200,7 @@ def build():
         shot = g.add(ltx_inst, [1720, y])
         shot["title"] = s["name"] + " shot"
         wv = shot["widgets_values"]
-        wv[0], wv[1], wv[2], wv[5], wv[6] = "", False, SECONDS, 2000 + k, FPS
+        wv[0], wv[1], wv[2], wv[5], wv[6] = "", True, SECONDS, 2000 + k, FPS  # prompt enhance looks at each frame
         g.link(angle, 0, shot, "input")
         g.link(prompt, 0, shot, "value")
         g.link(res, 0, shot, "value_3")
@@ -171,8 +226,8 @@ def build():
         "extra": {
             "linearMode": True,
             "linearData": {
-                "inputs": [[hero["id"], "image"], [scene["id"], "value"]],
-                "outputs": [scene_out["id"]] + shot_saves,
+                "inputs": [[who["id"], "image"], [where["id"], "image"], [scene["id"], "value"]],
+                "outputs": [scene_out["id"], hero_still["id"]] + shot_saves,
             },
             "ds": {"scale": 0.45, "offset": [100, 100]},
         },

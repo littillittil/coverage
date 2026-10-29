@@ -24,7 +24,7 @@ hero frame ──► CameraAngle ×5 ──► Qwen Image Edit 2511 + multiple a
 
 1. **Angles.** Five `CameraAngle` nodes place a virtual camera around the subject (wide, medium, close up, reverse, low angle). Qwen Image Edit 2511 with the multiple angles LoRA redraws the hero frame from each position. Every angle is made from the same hero frame, so the character, wardrobe, light and location stay locked.
 2. **The operator.** Locked off AI shots read as AI. Each shot's prompt adds the shot type plus a camera operator direction: breathing float, small drifting reframes, motion blur, focus breathing.
-3. **Motion.** LTX 2.5 animates each frame into a 4 second shot with sound.
+3. **Motion.** LTX 2.5 animates each frame into a 3 second shot with sound.
 4. **The cut.** `ConcatenateVideo` joins the five shots into one scene, ready to post.
 
 It runs in Comfy's **App mode**, so the person using it only sees two controls: the hero frame and what happens.
