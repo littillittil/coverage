@@ -163,9 +163,9 @@ def build():
                      outputs=[{"name": "IMAGE", "type": "IMAGE"}, {"name": "MASK", "type": "MASK"}],
                      size=[340, 360], title=title)
 
-    who = photo("who (a photo of the person)", "WHO", 0)
+    who = photo("Your photo (a selfie is enough)", "WHO", 0)
     situation = g.new("CustomCombo", [-900, 0], [SITUATIONS[0], 0] + SITUATIONS + [""],
-                      inputs=[{**widget_input("choice", "COMBO"), "label": "situation"}],
+                      inputs=[{**widget_input("choice", "COMBO"), "label": "Situation"}],
                       outputs=[{"name": "STRING", "type": "STRING"}, {"name": "INDEX", "type": "INT"}],
                       size=[420, 400], title="SITUATION")
 
