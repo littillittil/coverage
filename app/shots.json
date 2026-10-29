@@ -1,0 +1,17 @@
+[
+  {"id": "wide", "name": "Wide", "h": 0, "v": 12, "zoom": 0.5, "text": "Wide establishing shot."},
+  {"id": "medium", "name": "Medium", "h": 340, "v": 5, "zoom": 4.5, "text": "Medium shot."},
+  {"id": "close_up", "name": "Close Up", "h": 5, "v": 0, "zoom": 10, "text": "Close up shot."},
+  {"id": "extreme_close_up", "name": "Extreme Close Up", "h": 0, "v": 0, "zoom": 10, "text": "Extreme close up, only their eyes and the bridge of the nose fill the frame."},
+  {"id": "profile", "name": "Profile", "h": 60, "v": 0, "zoom": 6, "text": "Side profile medium shot."},
+  {"id": "low_angle", "name": "Low Angle", "h": 330, "v": -25, "zoom": 6, "text": "Low angle hero shot, the camera close to the ground looking up at them against the sky."},
+  {"id": "high_angle", "name": "High Angle", "h": 20, "v": 40, "zoom": 4, "text": "High angle shot, the camera above them looking down."},
+  {"id": "top_down", "name": "Top Down", "h": 0, "v": 60, "zoom": 3, "text": "Top down shot from directly above, looking straight down at them."},
+  {"id": "drone", "name": "Drone", "h": 0, "v": 60, "zoom": 0, "text": "Aerial drone shot from high above, they are small in the middle of the place."},
+  {"id": "behind", "name": "From Behind", "h": 165, "v": 5, "zoom": 4, "text": "Shot from behind them, looking past their back at what they see."},
+  {"id": "over_shoulder", "name": "Over Shoulder", "h": 140, "v": 8, "zoom": 6, "text": "Over the shoulder shot from just behind them, their shoulder soft in the foreground."},
+  {"id": "dutch", "name": "Dutch Tilt", "h": 350, "v": 5, "zoom": 5, "text": "Dutch angle, the horizon tilted sideways, uneasy medium shot."},
+  {"id": "macro", "name": "Macro", "h": 10, "v": 0, "zoom": 10, "text": "Macro shot of one eye, skin texture and lashes in sharp detail, very shallow focus."},
+  {"id": "hands", "name": "Hands", "h": 15, "v": 25, "zoom": 8, "text": "Insert shot of their hands, relaxed and natural, five fingers each."},
+  {"id": "cowboy", "name": "Cowboy", "h": 30, "v": 5, "zoom": 3, "text": "Cowboy shot from mid thigh up, slightly to one side."}
+]

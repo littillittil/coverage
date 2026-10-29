@@ -5,85 +5,155 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Coverage</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --stage: #0e0b11; --panel: #211927; --panel2: #2c2334; --line: #483c54;
-    --text: #f0f1ec; --dim: #a9afba; --accent: #60a5fa;
+    --stage: #0e0b11; --panel: #211927; --panel2: #2c2334; --panel3: #362b40; --line: #483c54;
+    --text: #f0f1ec; --dim: #a9afba; --faint: #6f6779; --accent: #60a5fa; --tally: #ff3b3b;
     --c1: #64b5f6; --c2: #b39ddb; --c3: #ff9cf9; --c4: #ffa931; --c5: #81c784;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--stage); color: var(--text); font-family: Inter, system-ui, sans-serif; min-height: 100vh; }
-  .window { max-width: 1240px; margin: 32px auto 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
-            box-shadow: 0 30px 80px rgba(0,0,0,.45); overflow: hidden; }
+  body { margin: 0; background: radial-gradient(1200px 600px at 50% -10%, #241a2c 0%, var(--stage) 60%); color: var(--text);
+         font-family: Inter, system-ui, sans-serif; min-height: 100vh; }
+  .window { max-width: 1440px; margin: 10px auto 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 20px;
+            box-shadow: 0 40px 100px rgba(0,0,0,.5); overflow: hidden; }
   .bar { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 16px; border-bottom: 1px solid var(--line); }
   .dot { width: 12px; height: 12px; border-radius: 50%; }
   .tab { margin-left: 14px; display: flex; align-items: center; gap: 8px; padding: 4px 14px; background: var(--panel2); border-radius: 8px; font-size: 13px; color: var(--dim); }
   .wires { display: flex; gap: 2px; } .wires i { width: 4px; height: 10px; border-radius: 2px; display: block; }
-  .head { display: flex; align-items: baseline; gap: 18px; padding: 22px 32px 0; }
-  .head h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: .02em; }
+  .head { display: flex; align-items: center; gap: 18px; padding: 14px 28px 0; }
+  .head .right { margin-left: auto; display: flex; align-items: center; gap: 18px; }
+  .head h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: .06em; }
   .head span { color: var(--dim); font-size: 14px; }
-  .main { display: grid; grid-template-columns: 340px 1fr; gap: 36px; padding: 22px 32px 32px; }
+  .main { display: grid; grid-template-columns: 270px 1fr; gap: 28px; padding: 12px 28px 22px; }
   .main > div { min-width: 0; }
+  .k { display: flex; align-items: center; gap: 10px; color: var(--dim); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 8px; }
+  .k .n { width: 20px; height: 20px; border-radius: 6px; background: var(--panel3); color: var(--text); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; letter-spacing: 0; }
+  .step { display: flex; align-items: center; gap: 10px; margin: 0 0 9px; }
+  .step .n { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #0e1320; display: inline-flex; align-items: center; justify-content: center;
+             font-size: 13px; font-weight: 800; transition: background .3s; flex: 0 0 auto; }
+  .step.done .n { background: #81c784; }
+  .step.done .n b { display: none; } .step .n i { display: none; font-style: normal; } .step.done .n i { display: inline; }
+  .step .t { font-size: 17px; font-weight: 800; letter-spacing: .08em; color: var(--text); }
+  .step .h { font-size: 13px; color: var(--dim); font-weight: 500; }
+  .section { margin-bottom: 14px; }
 
-  .drop { position: relative; aspect-ratio: 3/4; border-radius: 14px; border: 2px dashed var(--line); background: var(--panel2);
+  /* photo */
+  .drop { position: relative; aspect-ratio: 1/1; border-radius: 16px; border: 2px dashed var(--line); background: var(--panel2);
           display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; transition: border-color .2s; }
   .drop:hover, .drop.over { border-color: var(--accent); }
   .drop.filled { border: 2px solid var(--accent); }
   .drop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .drop .hint { text-align: center; color: var(--dim); font-size: 15px; line-height: 1.5; }
-  .drop .hint b { display: block; color: var(--text); font-size: 18px; margin-bottom: 4px; }
+  .drop .hint svg { display: block; margin: 0 auto 10px; }
+  .drop .hint b { display: block; color: var(--text); font-size: 18px; margin-bottom: 2px; }
 
-  label.k { display: block; color: var(--dim); font-size: 13px; margin: 0 0 10px; }
-  .tiles { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; }
-  .tiles::-webkit-scrollbar { height: 6px; } .tiles::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
-  .tile { flex: 0 0 116px; scroll-snap-align: start; cursor: pointer; text-align: center; }
-  .tile .img { width: 116px; height: 116px; border-radius: 14px; background: var(--panel2) center/cover no-repeat; border: 2px solid transparent;
-               box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); transition: transform .15s, border-color .15s; display: flex; align-items: center; justify-content: center; }
-  .tile:hover .img { transform: translateY(-2px); }
-  .tile.on .img { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(96,165,250,.25); }
-  .tile .name { margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--dim); white-space: nowrap; }
+  /* set map */
+  .map { margin-top: 12px; background: var(--panel2); border-radius: 16px; padding: 10px; border: 1px solid var(--line); }
+  .map svg { width: 100%; height: auto; display: block; }
+  .cam { transition: transform .6s cubic-bezier(.2,.8,.2,1), opacity .4s; }
+  .cam .tally { opacity: 0; }
+  .cam.rolling .tally { opacity: 1; animation: blink 1s infinite; }
+  .cam.wrapped .body { filter: brightness(1.15); }
+  @keyframes blink { 50% { opacity: .15; } }
+
+  /* places */
+  .tiles { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 6px; scroll-snap-type: x mandatory; }
+  .tiles::-webkit-scrollbar, .words::-webkit-scrollbar { height: 6px; }
+  .tiles::-webkit-scrollbar-thumb, .words::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+  .tile { flex: 0 0 88px; scroll-snap-align: start; cursor: pointer; text-align: center; }
+  .tile .img { width: 88px; height: 88px; border-radius: 14px; background: var(--panel2) center/cover no-repeat; border: 2px solid transparent;
+               transition: transform .15s, border-color .15s; display: flex; align-items: center; justify-content: center; }
+  .tile:hover .img { transform: translateY(-3px); }
+  .tile.on .img { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(96,165,250,.22); }
+  .tile .name { margin-top: 5px; font-size: 11px; font-weight: 600; color: var(--dim); white-space: nowrap; }
   .tile.on .name { color: var(--text); }
-  .tile.custom .img { border: 2px dashed var(--line); font-size: 34px; color: var(--dim); }
+  .tile.custom .img { border: 2px dashed var(--line); font-size: 32px; color: var(--dim); }
   .custombox { display: none; gap: 10px; margin-top: 6px; align-items: center; }
   .custombox.show { display: flex; }
-  .custombox input[type=text] { flex: 1; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; color: var(--text);
-                                font: inherit; padding: 12px 14px; outline: none; }
-  .custombox input[type=text]:focus { border-color: var(--accent); }
-  .btn2 { background: var(--panel2); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 11px 14px; font: inherit; font-size: 14px; cursor: pointer; white-space: nowrap; }
+  input[type=text] { flex: 1; min-width: 0; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; color: var(--text); font: inherit; font-size: 14px; padding: 11px 14px; outline: none; }
+  input[type=text]:focus { border-color: var(--accent); }
+  .btn2 { background: var(--panel2); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 10px 14px; font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 0; }
-  .chip { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); font-size: 12px; font-weight: 600; letter-spacing: .04em; transition: all .3s; }
-  .chip.busy { animation: pulse 1.4s infinite; }
-  .chip.done { color: #171a21; border-color: transparent; }
-  @keyframes pulse { 50% { opacity: .45; } }
+  /* action words */
+  .wordrow { display: flex; gap: 10px; align-items: center; }
+  .words { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; flex: 1; }
+  .wordrow input { flex: 0 0 170px; padding: 9px 14px; border-radius: 999px; }
+  .word { flex: 0 0 auto; padding: 8px 14px; border-radius: 999px; background: var(--panel2); border: 1px solid var(--line); color: var(--dim);
+          font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; animation: rise .35s both; }
+  .word:hover { color: var(--text); border-color: var(--faint); }
+  .word.on { background: var(--text); color: #171a21; border-color: var(--text); }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+  .shuffle { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel2); color: var(--dim); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .shuffle:hover { color: var(--text); }
+  .typeit { margin-top: 8px; display: flex; }
 
-  .row { display: flex; align-items: center; justify-content: space-between; margin-top: 28px; gap: 20px; }
+  /* shot menu */
+  .shotgrid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 7px; }
+  .shotbtn { position: relative; background: var(--panel2); border: 1.5px solid transparent; border-radius: 11px; padding: 7px 4px 6px; cursor: pointer; text-align: center; transition: all .15s; }
+  .shotbtn:hover { background: var(--panel3); }
+  .shotbtn svg { width: 48px; height: 32px; display: block; margin: 0 auto; }
+  .shotbtn .nm { margin-top: 4px; font-size: 10.5px; font-weight: 600; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .shotbtn.on .nm { color: var(--text); }
+  .shotbtn .badge { position: absolute; top: 5px; right: 5px; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 800; color: #171a21; display: none; align-items: center; justify-content: center; }
+  .shotbtn.on .badge { display: flex; }
+  .shake { animation: shake .3s; } @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+  /* film strip */
+  .strip { background: #0a080c; border-radius: 12px; padding: 13px 10px; position: relative; margin-top: 2px; }
+  .strip::before, .strip::after { content: ""; position: absolute; left: 10px; right: 10px; height: 6px;
+       background: repeating-linear-gradient(90deg, #2a2230 0 10px, transparent 10px 22px); }
+  .strip::before { top: 4px; } .strip::after { bottom: 4px; }
+  .frames { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .frame { aspect-ratio: 16/9; border-radius: 6px; background: #17121b; overflow: hidden; position: relative; border: 2px solid transparent; }
+  .frame img, .frame video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .frame .lbl { position: absolute; left: 5px; bottom: 5px; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 5px; color: #171a21; }
+  .frame .num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--faint); font-weight: 800; font-size: 18px; }
+  .frame.rolling { border-color: var(--tally); }
+  .frame.rolling .num::after { content: ""; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--tally); animation: blink 1s infinite; }
+
+  .row { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; gap: 20px; }
   .status { color: var(--dim); font-size: 14px; min-height: 20px; }
-  .run { background: #3a4f7a; color: var(--text); border: 0; border-radius: 999px; padding: 18px 64px; font: inherit; font-size: 18px; font-weight: 700; cursor: pointer; transition: background .2s, transform .1s; }
-  .run.ready { background: var(--accent); color: #0e1320; }
+  .run { position: relative; background: #3a4f7a; color: var(--text); border: 0; border-radius: 999px; padding: 13px 48px; font: inherit; font-size: 17px; font-weight: 800; letter-spacing: .02em; cursor: pointer; transition: background .2s, transform .1s, box-shadow .2s; }
+  .run.ready { background: var(--accent); color: #0e1320; box-shadow: 0 10px 40px rgba(96,165,250,.35); }
   .run:active { transform: scale(.97); }
-  .run:disabled { cursor: default; opacity: .7; }
+  .run:disabled { cursor: default; opacity: .75; }
+  .run .rec { display: none; width: 10px; height: 10px; border-radius: 50%; background: var(--tally); margin-right: 10px; vertical-align: middle; animation: blink 1s infinite; }
+  .run.rolling .rec { display: inline-block; }
 
-  .shots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 22px; }
-  .shot { aspect-ratio: 16/9; border-radius: 10px; background: var(--panel2); overflow: hidden; border: 2px solid transparent; position: relative; }
-  .shot img, .shot video { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .shot .lbl { position: absolute; left: 6px; bottom: 6px; font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 6px; color: #171a21; }
-  .scene { display: none; margin-top: 18px; }
-  .scene.show { display: block; }
-  .scene video { width: 100%; border-radius: 14px; display: block; background: #000; }
-  .scene .k { display: flex; justify-content: space-between; align-items: center; }
-  .scene a { color: var(--accent); font-size: 13px; text-decoration: none; }
-  .foot { text-align: center; color: var(--dim); font-size: 13px; margin: 18px 0 30px; display: flex; gap: 8px; justify-content: center; align-items: center; }
+  .scene { display: none; position: fixed; inset: 0; z-index: 9; background: rgba(8,6,10,.85); align-items: center; justify-content: center; padding: 30px; }
+  .scene.show { display: flex; }
+  .scene .box { width: min(1200px, 100%); }
+  .scene video { width: 100%; max-height: 80vh; border-radius: 14px; display: block; background: #000; }
+  .scene .x { background: none; border: 0; color: var(--dim); font-size: 26px; cursor: pointer; margin-left: 16px; }
+  .reopen { display: none; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .reopen.show { display: inline; }
+  .scene .top { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px; }
+  .scene a { color: var(--accent); font-size: 13px; text-decoration: none; font-weight: 600; }
+
+  /* clapper */
+  .clap { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(8,6,10,.7); z-index: 10; }
+  .clap.show { display: flex; animation: fadeout .5s 1.9s forwards; }
+  .clap .board { width: 320px; }
+  .clap .stick { transform-origin: 8px 40px; animation: snap .45s .35s cubic-bezier(.6,0,.4,1) both; }
+  .clap .say { font-weight: 800; font-size: 26px; letter-spacing: .08em; text-align: center; margin-top: 18px; animation: rise .4s .7s both; }
+  @keyframes snap { from { transform: rotate(-28deg); } to { transform: rotate(0); } }
+  @keyframes fadeout { to { opacity: 0; visibility: hidden; } }
+
+  .foot { text-align: center; color: var(--dim); font-size: 12px; margin: 8px 0 10px; display: flex; gap: 8px; justify-content: center; align-items: center; }
   .foot .logo { width: 18px; height: 18px; border-radius: 4px; background: #f0ff41; color: #171a21; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
 
-  @media (max-width: 900px) {
+  @media (max-width: 920px) {
     .window { margin: 0; border-radius: 0; border-left: 0; border-right: 0; }
-    .main { grid-template-columns: 1fr; padding: 16px; gap: 22px; }
+    .main { grid-template-columns: 1fr; padding: 16px; gap: 20px; }
     .head { padding: 18px 16px 0; flex-wrap: wrap; gap: 6px 14px; }
-    .drop { max-width: 300px; }
-    .shots { grid-template-columns: repeat(3, 1fr); }
-    .run { padding: 16px 44px; }
+    .drop { max-width: 320px; }
+    .map { max-width: 320px; }
+    .frames { grid-template-columns: repeat(3, 1fr); }
+    .shotgrid { grid-template-columns: repeat(4, 1fr); }
+    .head .right { margin-left: 0; width: 100%; justify-content: space-between; }
+    .wordrow { flex-wrap: wrap; } .wordrow input { flex: 1 1 100%; }
+    .row { flex-direction: column-reverse; align-items: stretch; }
   }
 </style>
 </head>
@@ -93,62 +163,121 @@
     <span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>
     <span class="tab"><span class="wires"><i style="background:var(--c1)"></i><i style="background:var(--c2)"></i><i style="background:var(--c3)"></i><i style="background:var(--c4)"></i><i style="background:var(--c5)"></i></span>Coverage</span>
   </div>
-  <div class="head"><h1>COVERAGE</h1><span>one photo in, the whole scene out</span></div>
+  <div class="head"><h1>COVERAGE</h1><span>one photo in, the whole scene out</span>
+    <div class="right"><div class="status" id="status">Add your photo and pick a place.</div><span class="reopen" id="reopen">Watch the scene</span>
+      <button class="run" id="run"><span class="rec"></span><span id="runLabel">Run</span></button></div></div>
 
   <div class="main">
     <div>
+      <div class="step" id="s1"><span class="n"><b>1</b><i>✓</i></span><span class="t">WHO</span><span class="h">your photo</span></div>
       <div class="drop" id="drop">
-        <div class="hint"><b>Your photo</b>a selfie is enough<br>drop it here or click</div>
+        <div class="hint">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+          <b>Your photo</b>a selfie is enough
+        </div>
       </div>
       <input type="file" id="file" accept="image/*" hidden>
+      <div class="map"><svg id="map" viewBox="0 0 300 300"></svg></div>
     </div>
 
     <div>
-      <label class="k">Where</label>
-      <div class="tiles" id="tiles"></div>
-      <div class="custombox" id="custombox">
-        <input type="text" id="customText" placeholder="Type your place, like a train station in Mumbai">
-        <button class="btn2" id="customPhoto">Use a photo</button>
-        <input type="file" id="placeFile" accept="image/*" hidden>
+      <div class="section">
+        <div class="step" id="s2"><span class="n"><b>2</b><i>✓</i></span><span class="t">WHERE</span><span class="h">pick a place</span></div>
+        <div class="tiles" id="tiles"></div>
+        <div class="custombox" id="custombox">
+          <input type="text" id="customText" placeholder="Type your place">
+          <button class="btn2" id="customPhoto">Use a photo</button>
+          <input type="file" id="placeFile" accept="image/*" hidden>
+        </div>
       </div>
 
-      <label class="k" style="margin-top:26px">Your crew shoots</label>
-      <div class="chips" id="chips" style="margin-top:0"></div>
-
-      <div class="shots" id="shots"></div>
-
-      <div class="scene" id="scene">
-        <div class="k"><label class="k">The scene</label><a id="dl" download>Download</a></div>
-        <video id="sceneVideo" controls playsinline></video>
+      <div class="section">
+        <div class="step" id="s3"><span class="n"><b>3</b><i>✓</i></span><span class="t">WHAT</span><span class="h">what are you doing</span></div>
+        <div class="wordrow">
+          <div class="words" id="words"></div>
+          <button class="shuffle" id="shuffle" title="More">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+          </button>
+          <input type="text" id="actionText" placeholder="or type it">
+        </div>
       </div>
 
-      <div class="row">
-        <div class="status" id="status">Add your photo and pick a place.</div>
-        <button class="run" id="run">Run</button>
+      <div class="section">
+        <div class="step done" id="s4"><span class="n"><b>4</b><i>✓</i></span><span class="t">HOW</span><span class="h">your crew shoots 5 angles</span></div>
+        <div class="shotgrid" id="shotgrid"></div>
       </div>
+
+      <div class="strip"><div class="frames" id="frames"></div></div>
+
+
     </div>
   </div>
 </div>
 <div class="foot"><span class="logo">C</span>made in ComfyUI · every model open weights</div>
 
+<div class="scene" id="scene"><div class="box">
+  <div class="top"><a id="dl" download="coverage_scene.mp4">Download</a><button class="x" id="closeScene">×</button></div>
+  <video id="sceneVideo" controls playsinline></video></div></div>
+<div class="clap" id="clap">
+  <div>
+    <svg class="board" viewBox="0 0 320 230">
+      <rect x="8" y="60" width="304" height="164" rx="10" fill="#1b1620" stroke="#f0f1ec" stroke-width="3"/>
+      <g class="stick"><rect x="8" y="22" width="304" height="40" rx="6" fill="#f0f1ec"/>
+        <g fill="#171a21"><path d="M30 22h34l-22 40H8z"/><path d="M100 22h34l-22 40H78z"/><path d="M170 22h34l-22 40h-34z"/><path d="M240 22h34l-22 40h-34z"/></g></g>
+      <rect x="8" y="62" width="304" height="26" fill="#f0f1ec"/>
+      <g fill="#171a21"><path d="M30 62h34l-14 26H16z"/><path d="M100 62h34l-14 26H86z"/><path d="M170 62h34l-14 26h-34z"/><path d="M240 62h34l-14 26h-34z"/></g>
+      <text x="28" y="130" fill="#a9afba" font-family="Inter" font-size="14" font-weight="700" letter-spacing="2">PROD</text>
+      <text x="28" y="160" fill="#f0f1ec" font-family="Inter" font-size="28" font-weight="800">COVERAGE</text>
+      <text x="28" y="200" fill="#a9afba" font-family="Inter" font-size="14" font-weight="700" letter-spacing="2">SCENE 1   TAKE 1</text>
+    </svg>
+    <div class="say">THAT'S A WRAP</div>
+  </div>
+</div>
+
 <script>
-const SHOTS = [["WIDE","--c1"],["MEDIUM","--c2"],["CLOSE UP","--c3"],["PROFILE","--c4"],["LOW ANGLE","--c5"]];
+const COLORS = ["--c1", "--c2", "--c3", "--c4", "--c5"];
+const DEFAULT_SHOTS = ["wide", "medium", "close_up", "profile", "low_angle"];
 const $ = id => document.getElementById(id);
-const state = { selfie: null, place: null, placeImage: null };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const state = { selfie: null, place: null, placeImage: null, action: null, shots: [...DEFAULT_SHOTS] };
+let LIB = { places: [], shots: [], actions: [] }, wordPage = 0;
 
-// shot chips and empty frames
-$("chips").innerHTML = SHOTS.map(([n]) => `<span class="chip">${n}</span>`).join("");
-$("shots").innerHTML = SHOTS.map(() => `<div class="shot"></div>`).join("");
+/* framing icons: how much of the person each shot shows, like a storyboard */
+const P = (x, y, s, fill = "currentColor") =>      // a person: head + shoulders, scale s, head center x,y
+  `<circle cx="${x}" cy="${y}" r="${5 * s}" fill="${fill}"/><path d="M${x - 11 * s} ${y + 22 * s} q0 -14 ${11 * s} -14 q${11 * s} 0 ${11 * s} 14 v${30 * s} h${-22 * s}z" fill="${fill}"/>`;
+const ICONS = {
+  wide: `<line x1="2" y1="31" x2="58" y2="31" stroke="currentColor" stroke-width="1" opacity=".5"/>${P(30, 18, .38)}`,
+  medium: P(30, 15, .9),
+  close_up: `<circle cx="30" cy="21" r="12" fill="currentColor"/><path d="M12 40q0-9 18-9t18 9z" fill="currentColor"/>`,
+  extreme_close_up: `<rect x="0" y="0" width="60" height="40" fill="currentColor" opacity=".25"/><ellipse cx="19" cy="20" rx="8" ry="4.5" fill="currentColor"/><ellipse cx="41" cy="20" rx="8" ry="4.5" fill="currentColor"/>`,
+  profile: `<path d="M24 9a10 10 0 1 1 0 20l-1 4h-4l1-5a10 10 0 0 1-2-9l-3-2 3-1a10 10 0 0 1 6-7z" fill="currentColor"/><path d="M12 40q2-8 14-8t12 8z" fill="currentColor"/>`,
+  low_angle: `<path d="M24 6h12l8 34H16z" fill="currentColor"/><circle cx="30" cy="8" r="4" fill="currentColor"/><path d="M52 30v-14m-4 4 4-4 4 4" stroke="currentColor" stroke-width="2" fill="none"/>`,
+  high_angle: `${P(30, 20, .5)}<path d="M52 10v14m-4-4 4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>`,
+  top_down: `<ellipse cx="30" cy="20" rx="13" ry="8" fill="currentColor" opacity=".55"/><circle cx="30" cy="20" r="6" fill="currentColor"/>`,
+  drone: `<path d="M2 12h56M2 24h56M14 2v36M30 2v36M46 2v36" stroke="currentColor" stroke-width=".6" opacity=".45"/><circle cx="30" cy="20" r="2.5" fill="currentColor"/>`,
+  behind: `<circle cx="30" cy="13" r="8" fill="currentColor"/><path d="M14 40q0-17 16-17t16 17z" fill="currentColor"/><line x1="2" y1="18" x2="58" y2="18" stroke="currentColor" stroke-width="1" opacity=".5"/>`,
+  over_shoulder: `<path d="M0 40V22q10-6 22 0l4 18z" fill="currentColor"/><circle cx="12" cy="12" r="8" fill="currentColor"/><line x1="26" y1="22" x2="58" y2="22" stroke="currentColor" stroke-width="1" opacity=".5"/>`,
+  dutch: `<g transform="rotate(-16 30 20)">${P(30, 15, .9)}</g>`,
+  macro: `<ellipse cx="30" cy="20" rx="24" ry="11" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="30" cy="20" r="8" fill="currentColor"/><circle cx="27" cy="17" r="2" fill="var(--panel2)"/>`,
+  hands: `<path d="M14 34v-12a3 3 0 0 1 6 0v-6a3 3 0 0 1 6 0v8l4-3a3 3 0 0 1 4 4l-8 9z" fill="currentColor"/><path d="M46 34v-12a3 3 0 0 0-6 0v-6a3 3 0 0 0-6 0v8" fill="none" stroke="currentColor" stroke-width="2"/>`,
+  cowboy: P(30, 10, .62),
+};
+const icon = id => `<svg viewBox="0 0 60 40"><rect x=".5" y=".5" width="59" height="39" rx="5" fill="none" stroke="currentColor" opacity=".35"/><svg viewBox="0 0 60 40" style="overflow:hidden">${ICONS[id] || ""}</svg></svg>`;
 
-// place tiles
-fetch("/api/places").then(r => r.json()).then(places => {
-  $("tiles").innerHTML = places.map(p =>
+fetch("/api/library").then(r => r.json()).then(lib => {
+  LIB = lib;
+  $("tiles").innerHTML = lib.places.map(p =>
     `<div class="tile" data-id="${p.id}"><div class="img" style="background-image:url('places/thumbs/${p.id}.jpg')"></div><div class="name">${p.name}</div></div>`
   ).join("") + `<div class="tile custom" data-id="custom"><div class="img">+</div><div class="name">Your Place</div></div>`;
-  document.querySelectorAll(".tile").forEach(t => t.onclick = () => pick(t));
+  document.querySelectorAll(".tile").forEach(t => t.onclick = () => pickPlace(t));
+  showWords();
+  drawShots();
+  drawMap();
+  drawFrames();
 });
 
-function pick(t) {
+/* where */
+function pickPlace(t) {
   document.querySelectorAll(".tile").forEach(x => x.classList.toggle("on", x === t));
   state.place = t.dataset.id;
   $("custombox").classList.toggle("show", state.place === "custom");
@@ -156,51 +285,123 @@ function pick(t) {
   ready();
 }
 
+/* what: a few words at a time, refresh for more */
+function showWords() {
+  const per = 8, all = LIB.actions.map(a => a.word);
+  const start = (wordPage * per) % all.length;
+  let list = all.slice(start, start + per); if (list.length < per) list = list.concat(all.slice(0, per - list.length));
+  if (state.action && all.includes(state.action) && !list.includes(state.action)) list[0] = state.action;
+  $("words").innerHTML = list.map((w, i) => `<span class="word ${w === state.action ? "on" : ""}" style="animation-delay:${i * 30}ms">${w}</span>`).join("");
+  document.querySelectorAll(".word").forEach(el => el.onclick = () => {
+    state.action = state.action === el.textContent ? null : el.textContent; $("actionText").value = ""; showWords(); steps();
+  });
+}
+$("shuffle").onclick = () => { wordPage++; showWords(); };
+$("actionText").oninput = e => { state.action = e.target.value.trim() || null; document.querySelectorAll(".word").forEach(w => w.classList.remove("on")); steps(); };
+
+/* the crew: pick five shots */
+function drawShots() {
+  $("shotgrid").innerHTML = LIB.shots.map(s => {
+    const i = state.shots.indexOf(s.id), c = i >= 0 ? `var(${COLORS[i]})` : "var(--faint)";
+    return `<div class="shotbtn ${i >= 0 ? "on" : ""}" data-id="${s.id}" style="color:${c};border-color:${i >= 0 ? c : "transparent"}">
+      <span class="badge" style="background:${c}">${i + 1}</span>${icon(s.id)}<div class="nm">${s.name}</div></div>`;
+  }).join("");
+  document.querySelectorAll(".shotbtn").forEach(b => b.onclick = () => {
+    const id = b.dataset.id, i = state.shots.indexOf(id);
+    if (i >= 0) state.shots.splice(i, 1);
+    else if (state.shots.length < 5) state.shots.push(id);
+    else { b.classList.add("shake"); setTimeout(() => b.classList.remove("shake"), 300); $("status").textContent = "Five cameras on set. Tap one to free it."; return; }
+    drawShots(); drawMap(); drawFrames(); ready();
+  });
+}
+
+/* the set map: you in the middle, each camera where it really stands */
+function camPos(s) {
+  const r = 36 + (10 - Math.min(10, s.zoom)) * 9.5, a = s.h * Math.PI / 180;
+  return { x: 150 + r * Math.sin(a), y: 150 + r * Math.cos(a), rot: -s.h, r };
+}
+function drawMap() {
+  const shots = state.shots.map(id => LIB.shots.find(s => s.id === id)).filter(Boolean);
+  let svg = `<defs><radialGradient id="floor"><stop offset="0" stop-color="#3a2f44"/><stop offset="1" stop-color="#2c2334"/></radialGradient></defs>
+    <circle cx="150" cy="150" r="140" fill="url(#floor)"/>
+    ${[46, 86, 126].map(r => `<circle cx="150" cy="150" r="${r}" fill="none" stroke="#483c54" stroke-dasharray="2 5"/>`).join("")}
+    <text x="150" y="292" text-anchor="middle" fill="#6f6779" font-size="9" font-weight="700" letter-spacing="2">FRONT</text>
+    <ellipse cx="150" cy="150" rx="14" ry="8" fill="#6f6779"/><circle cx="150" cy="150" r="7" fill="#f0f1ec"/><circle cx="150" cy="158" r="1.8" fill="#f0f1ec"/>
+    <text x="150" y="128" text-anchor="middle" fill="#a9afba" font-size="9" font-weight="700" letter-spacing="2">YOU</text>`;
+  shots.forEach((s, i) => {
+    const p = camPos(s), col = css(COLORS[i]), up = s.v >= 30, low = s.v < 0;
+    svg += `<g class="cam" id="cam${i}" style="transform:translate(${p.x}px,${p.y}px)">
+      ${up ? `<circle r="15" fill="none" stroke="${col}" stroke-dasharray="3 3" opacity=".8"/>` : ""}
+      <g transform="rotate(${p.rot})"><g class="body"><rect x="-7" y="-1" width="14" height="11" rx="3" fill="${col}"/><path d="M-4 -1 L4 -1 L8 -9 L-8 -9z" fill="${col}" opacity=".75"/><path d="M0 -9 L0 -${p.r - 16}" stroke="${col}" stroke-width="1" stroke-dasharray="1 3" opacity=".5"/></g></g>
+      <circle class="tally" cx="7" cy="-8" r="3.5" fill="#ff3b3b"/>
+      <text y="${up ? 26 : 22}" text-anchor="middle" fill="${col}" font-size="9" font-weight="800">${i + 1}${up ? " ↑" : low ? " ↓" : ""}</text></g>`;
+  });
+  $("map").innerHTML = svg;
+}
+
+/* film strip */
+function drawFrames() {
+  $("frames").innerHTML = [0, 1, 2, 3, 4].map(i => {
+    const s = LIB.shots.find(x => x.id === state.shots[i]);
+    return `<div class="frame" data-i="${i}"><div class="num">${s ? "" : i + 1}</div>${s ? `<span class="lbl" style="background:var(${COLORS[i]})">${s.name.toUpperCase()}</span>` : ""}</div>`;
+  }).join("");
+}
+
+$("closeScene").onclick = () => { $("scene").classList.remove("show"); $("sceneVideo").pause(); };
+$("reopen").onclick = () => { $("scene").classList.add("show"); $("sceneVideo").play().catch(() => {}); };
+
 function readFile(f, cb) { const r = new FileReader(); r.onload = () => cb(r.result); r.readAsDataURL(f); }
 
-// selfie drop
+/* photo */
 const drop = $("drop");
 drop.onclick = () => $("file").click();
 $("file").onchange = e => e.target.files[0] && setSelfie(e.target.files[0]);
 drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
 drop.ondragleave = () => drop.classList.remove("over");
 drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); e.dataTransfer.files[0] && setSelfie(e.dataTransfer.files[0]); };
-function setSelfie(f) {
-  readFile(f, url => { state.selfie = url; drop.innerHTML = `<img src="${url}">`; drop.classList.add("filled"); ready(); });
-}
+function setSelfie(f) { readFile(f, url => { state.selfie = url; drop.innerHTML = `<img src="${url}">`; drop.classList.add("filled"); ready(); }); }
 
-// your own place
+/* your own place */
 $("customPhoto").onclick = () => $("placeFile").click();
 $("placeFile").onchange = e => {
   const f = e.target.files[0]; if (!f) return;
   readFile(f, url => {
     state.placeImage = url;
-    document.querySelector('.tile.custom .img').style.backgroundImage = `url('${url}')`;
-    document.querySelector('.tile.custom .img').textContent = "";
-    $("customPhoto").textContent = "Photo added";
-    ready();
+    const img = document.querySelector(".tile.custom .img"); img.style.backgroundImage = `url('${url}')`; img.textContent = "";
+    $("customPhoto").textContent = "Photo added"; ready();
   });
 };
 $("customText").oninput = ready;
 
 function canRun() {
-  if (!state.selfie || !state.place) return false;
+  if (!state.selfie || !state.place || state.shots.length !== 5) return false;
   if (state.place === "custom") return !!(state.placeImage || $("customText").value.trim());
   return true;
 }
-function ready() { $("run").classList.toggle("ready", canRun()); if (canRun()) $("status").textContent = "Ready. Press Run."; }
+function steps() {
+  $("s1").classList.toggle("done", !!state.selfie);
+  $("s2").classList.toggle("done", !!state.place && (state.place !== "custom" || !!(state.placeImage || $("customText").value.trim())));
+  $("s3").classList.toggle("done", !!state.action);
+  $("s4").classList.toggle("done", state.shots.length === 5);
+}
+function ready() {
+  steps();
+  $("run").classList.toggle("ready", canRun());
+  if (canRun()) $("status").textContent = "Ready. Press Run.";
+  else if (state.selfie && state.place && state.shots.length < 5) $("status").textContent = `Pick ${5 - state.shots.length} more shot${state.shots.length === 4 ? "" : "s"}.`;
+}
 
-// run
+/* run */
 $("run").onclick = async () => {
-  if (!canRun()) { $("status").textContent = !state.selfie ? "Add your photo first." : "Pick a place first."; return; }
-  $("run").disabled = true; $("run").textContent = "Shooting";
-  document.querySelectorAll(".chip").forEach(c => { c.className = "chip busy"; c.style.background = ""; });
-  $("shots").innerHTML = SHOTS.map(() => `<div class="shot"></div>`).join("");
-  $("scene").classList.remove("show");
-  const body = { selfie: state.selfie };
+  if (!canRun()) { $("status").textContent = !state.selfie ? "Add your photo first." : !state.place ? "Pick a place first." : "Pick five shots."; return; }
+  $("run").disabled = true; $("run").classList.add("rolling"); $("runLabel").textContent = "Rolling";
+  drawFrames(); drawMap(); $("scene").classList.remove("show"); $("reopen").classList.remove("show");
+  document.querySelectorAll(".cam").forEach(c => c.classList.add("rolling"));
+  document.querySelectorAll(".frame").forEach(f => f.classList.add("rolling"));
+  const body = { selfie: state.selfie, action: state.action, shots: state.shots };
   if (state.place === "custom") { body.place_image = state.placeImage; body.place_text = $("customText").value.trim(); }
   else body.place_id = state.place;
-  const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => r.json());
+  const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => r.json()).catch(() => ({}));
   if (!r.id) { fail(r.error || "Could not start"); return; }
   poll(r.id, Date.now());
 };
@@ -208,30 +409,36 @@ $("run").onclick = async () => {
 function poll(id, t0) {
   fetch(`/api/run/${id}`).then(r => r.json()).then(r => {
     const f = r.files || {}, mins = Math.floor((Date.now() - t0) / 60000);
-    SHOTS.forEach(([n, c], i) => {
-      const box = $("shots").children[i], chip = $("chips").children[i];
+    [0, 1, 2, 3, 4].forEach(i => {
+      const box = $("frames").children[i], cam = $(`cam${i}`), lbl = box.querySelector(".lbl")?.outerHTML || "";
       const vid = f[`shot_${i + 1}`], still = f[`still_${i + 1}`];
       if (vid && box.dataset.v !== "1") {
-        box.innerHTML = `<video src="${vid}" autoplay loop muted playsinline></video><span class="lbl" style="background:var(${c})">${n}</span>`;
-        box.dataset.v = "1"; box.style.borderColor = `var(${c})`;
-        chip.className = "chip done"; chip.style.background = `var(${c})`;
+        box.innerHTML = `<video src="${vid}" autoplay loop muted playsinline></video>${lbl}`;
+        box.dataset.v = "1"; box.classList.remove("rolling"); box.style.borderColor = `var(${COLORS[i]})`;
+        cam && (cam.classList.remove("rolling"), cam.classList.add("wrapped"));
       } else if (still && !box.dataset.s) {
-        box.innerHTML = `<img src="${still}"><span class="lbl" style="background:var(${c})">${n}</span>`; box.dataset.s = "1";
+        box.innerHTML = `<img src="${still}"><div class="num"></div>${lbl}`; box.dataset.s = "1";
       }
     });
-    const shotsDone = SHOTS.filter((_, i) => f[`shot_${i + 1}`]).length;
-    let msg = shotsDone ? `${shotsDone} of 5 shots in the can` : (f.still_1 ? "Lighting and rolling" : f.hero ? "Placing the cameras" : f.full_body ? "Putting you in the place" : "Finding your full look");
+    const done = [1, 2, 3, 4, 5].filter(i => f[`shot_${i}`]).length;
+    const msg = done ? `${done} of 5 shots in the can` : f.still_1 ? "Lighting and rolling" : f.hero ? "Placing the cameras" : f.full_body ? "Putting you in the place" : r.status === "running" ? "Crew is setting up" : "Waiting for a stage";
     $("status").textContent = `${msg} · ${mins} min`;
-    if (f.scene) {
-      $("sceneVideo").src = f.scene; $("dl").href = f.scene; $("scene").classList.add("show");
+    if (f.scene && $("sceneVideo").getAttribute("src") !== f.scene) {
+      $("sceneVideo").src = f.scene; $("dl").href = f.scene;
+      $("clap").classList.remove("show"); void $("clap").offsetWidth; $("clap").classList.add("show");
+      $("scene").classList.remove("show"); $("reopen").classList.add("show");
+      setTimeout(() => { $("scene").classList.add("show"); $("sceneVideo").play().catch(() => {}); }, 2300);
     }
     if (r.status === "done") { $("status").textContent = `That's a wrap · ${mins} min`; reset(); return; }
     if (r.status === "failed") { fail(r.error); return; }
     setTimeout(() => poll(id, t0), 4000);
   }).catch(() => setTimeout(() => poll(id, t0), 6000));
 }
-function fail(msg) { $("status").textContent = "Something broke: " + (msg || "unknown"); document.querySelectorAll(".chip").forEach(c => c.classList.remove("busy")); reset(); }
-function reset() { $("run").disabled = false; $("run").textContent = "Run"; }
+function fail(msg) {
+  $("status").textContent = "Something broke: " + (msg || "unknown");
+  document.querySelectorAll(".cam, .frame").forEach(c => c.classList.remove("rolling")); reset();
+}
+function reset() { $("run").disabled = false; $("run").classList.remove("rolling"); $("runLabel").textContent = "Run"; }
 </script>
 </body>
 </html>

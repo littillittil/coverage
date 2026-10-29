@@ -17,6 +17,8 @@ APP = Path(__file__).resolve().parent
 ROOT = APP.parent
 WORKFLOW = json.loads((ROOT / "workflows" / "coverage.api.json").read_text())
 PLACES = {p["id"]: p for p in json.loads((APP / "places.json").read_text())}
+SHOTS = {s["id"]: s for s in json.loads((APP / "shots.json").read_text())}
+ACTIONS = {a["word"]: a["moment"] for a in json.loads((APP / "actions.json").read_text())}
 RUNS = Path(os.environ.get("COVERAGE_RUNS", APP / "runs"))
 PORT = int(os.environ.get("PORT", 8800))
 
@@ -25,6 +27,10 @@ WHO = "405"            # LoadImage: your photo
 SITUATION = "430"      # CustomCombo: "place | moment"
 PLACE_OUT = "415:421"  # where the built place comes out (FLUX branch)
 PLACE_SAVE = "427"
+CAMERAS = ["6", "12", "18", "24", "30"]         # CameraAngle per camera slot
+CAMERA_OPS = ["9", "15", "21", "27", "33"]      # "shot text + camera operator" per slot
+SLOT_TEXT = ["Wide establishing shot.", "Medium shot.", "Close up shot.", "Side profile medium shot.",
+             "Low angle hero shot, the camera close to the ground looking up at them against the sky."]
 OUTPUTS = {            # node id -> what the page calls it, in the order they land
     "438": "full_body", "414": "hero",
     "8": "still_1", "14": "still_2", "20": "still_3", "26": "still_4", "32": "still_5",
@@ -68,14 +74,21 @@ def qwen_place(graph, text):
     return "909"
 
 
-def build(place_id=None, place_text=None, have_place_photo=False):
+def build(place_id=None, place_text=None, have_place_photo=False, action=None, shots=None):
     g = copy.deepcopy(WORKFLOW)
-    if place_id:
-        p = PLACES[place_id]
-        situation = f"{p['place']} | {p['moment']}"
-    else:
-        situation = f"{place_text or 'Your own place'} | {DEFAULT_MOMENT}"
+    place = PLACES[place_id]["place"] if place_id else (place_text or "Your own place")
+    moment = ACTIONS.get(action) or (action or "").strip() or (PLACES[place_id]["moment"] if place_id else DEFAULT_MOMENT)
+    situation = f"{place} | {moment}"
     g[SITUATION]["inputs"].update({"choice": situation, "option1": situation, "index": 0})
+
+    # the shot list: each of the five cameras gets its position, lens and shot description
+    for slot, sid in enumerate((shots or [])[:5]):
+        s = SHOTS.get(sid)
+        if not s:
+            continue
+        g[CAMERAS[slot]]["inputs"].update(horizontal_angle=s["h"], vertical_angle=s["v"], zoom=s["zoom"])
+        op = g[CAMERA_OPS[slot]]["inputs"]
+        op["string_b"] = s["text"] + op["string_b"][len(SLOT_TEXT[slot]):]
 
     if place_id or have_place_photo:
         g["900"] = {"class_type": "LoadImage", "inputs": {"image": "place.png"}}
@@ -116,7 +129,8 @@ def run_job(rid, body):
             place_photo = folder / "place.png"
             save_data_url(body["place_image"], place_photo)
 
-        wf = client.workflows.from_json(build(body.get("place_id"), body.get("place_text"), bool(place_photo)))
+        wf = client.workflows.from_json(build(body.get("place_id"), body.get("place_text"), bool(place_photo),
+                                              body.get("action"), body.get("shots")))
         wf.set_input(WHO, "image", client.assets.from_file(selfie))
         if place_photo:
             wf.set_input("900", "image", client.assets.from_file(place_photo))
@@ -173,8 +187,9 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             return self.wfile.write(data)
-        if self.path == "/api/places":
-            return self.send_json(list(PLACES.values()))
+        if self.path == "/api/library":
+            return self.send_json({"places": list(PLACES.values()), "shots": list(SHOTS.values()),
+                                   "actions": [{"word": w} for w in ACTIONS]})
         return super().do_GET()
 
     def do_POST(self):
