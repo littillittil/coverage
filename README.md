@@ -42,7 +42,7 @@ situation ──► FLUX 2: build the place ──► Qwen Edit 2511: put the pe
 
 **Comfy Cloud (fastest):** open [cloud.comfy.org](https://cloud.comfy.org), drag `workflows/coverage.app.json` onto the page, add a photo, pick a situation, press Run. Every model is already on Comfy Cloud.
 
-**Your own ComfyUI:** update to the latest ComfyUI (it uses the core `CameraAngle`, `CustomCombo`, `ResolutionSelector` and `ConcatenateVideo` nodes), drag in the workflow, and download the models listed in the official templates `image_flux2_text_to_image`, `template_qwen_multiangle.app` and `video_ltx2_5_i2v` (Comfy's template browser links every file).
+**Your own ComfyUI:** update to the latest ComfyUI (it uses the core `CameraAngle`, `CustomCombo`, `RegexReplace`, `ResolutionSelector` and `ConcatenateVideo` nodes) and install one custom node pack from the Manager, **ComfyUI-Image-Filters** (for `BetterFilmGrain`), drag in the workflow, and download the models listed in the official templates `image_flux2_text_to_image`, `template_qwen_multiangle.app` and `video_ltx2_5_i2v` (Comfy's template browser links every file).
 
 **No photo handy?** Try one of the sample people in `examples/people`: Maya, Kenji, Priya and Mateo. They were made with FLUX 2 inside ComfyUI, so they are open weights too. Each is a plain selfie, because that is all the app needs.
 
