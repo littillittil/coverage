@@ -1,8 +1,8 @@
 {
  "id": "c0e7a6e0-c0de-4c0e-8a6e-c00e2a9e0001",
  "revision": 0,
- "last_node_id": 47,
- "last_link_id": 75,
+ "last_node_id": 49,
+ "last_link_id": 77,
  "nodes": [
   {
    "id": 1,
@@ -34,7 +34,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      5
+      7
      ]
     },
     {
@@ -83,12 +83,12 @@
      "type": "STRING",
      "links": [
       1,
-      4,
-      17,
-      30,
-      43,
-      56,
-      69
+      2,
+      19,
+      32,
+      45,
+      58,
+      71
      ]
     },
     {
@@ -101,14 +101,14 @@
     "Node name for S&R": "CustomCombo"
    },
    "widgets_values": [
-    "Relaxing on a green velvet couch in a sunny East Village apartment with a red brick wall, smiling to themselves",
+    "A sunny East Village walk up apartment with a red brick wall and a green velvet couch | relaxing on the couch, smiling to themselves",
     0,
-    "Relaxing on a green velvet couch in a sunny East Village apartment with a red brick wall, smiling to themselves",
-    "Walking slowly down a leafy Brooklyn street at golden hour past brownstones, glancing around",
-    "Sitting on a park bench in Central Park in autumn, watching people go by, thoughtful",
-    "Leaning on a rooftop railing in Manhattan at sunset, the wind in their hair, calm",
-    "Sitting in a booth in a neon lit Hong Kong diner at night, laughing softly",
-    "Sitting by a rainy cafe window in Paris, watching the street with a soft smile",
+    "A sunny East Village walk up apartment with a red brick wall and a green velvet couch | relaxing on the couch, smiling to themselves",
+    "A leafy Brooklyn street of brownstones at golden hour | walking slowly down the sidewalk, glancing around",
+    "A path through Central Park in autumn with old benches | sitting on a bench, watching people go by, thoughtful",
+    "A Manhattan rooftop at sunset with the skyline behind | leaning on the railing, the wind in their hair, calm",
+    "A neon lit Hong Kong diner at night with mint green booths | sitting in a booth, laughing softly",
+    "A Paris cafe by a rainy window | sitting at a table by the window, watching the street with a soft smile",
     ""
    ],
    "title": "SITUATION"
@@ -142,7 +142,7 @@
      "widget": {
       "name": "string_b"
      },
-     "link": 1
+     "link": 3
     },
     {
      "name": "delimiter",
@@ -158,7 +158,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      2
+      4
      ]
     }
    ],
@@ -174,6 +174,124 @@
   },
   {
    "id": 4,
+   "type": "RegexReplace",
+   "pos": [
+    -900,
+    500
+   ],
+   "size": [
+    320,
+    160
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string",
+     "type": "STRING",
+     "widget": {
+      "name": "string"
+     },
+     "link": 1
+    },
+    {
+     "name": "regex_pattern",
+     "type": "STRING",
+     "widget": {
+      "name": "regex_pattern"
+     },
+     "link": null
+    },
+    {
+     "name": "replace",
+     "type": "STRING",
+     "widget": {
+      "name": "replace"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      3
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "RegexReplace"
+   },
+   "widgets_values": [
+    "",
+    "\\s*\\|.*$",
+    ""
+   ],
+   "title": "JUST THE PLACE"
+  },
+  {
+   "id": 5,
+   "type": "RegexReplace",
+   "pos": [
+    -900,
+    800
+   ],
+   "size": [
+    320,
+    160
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string",
+     "type": "STRING",
+     "widget": {
+      "name": "string"
+     },
+     "link": 2
+    },
+    {
+     "name": "regex_pattern",
+     "type": "STRING",
+     "widget": {
+      "name": "regex_pattern"
+     },
+     "link": null
+    },
+    {
+     "name": "replace",
+     "type": "STRING",
+     "widget": {
+      "name": "replace"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      6
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "RegexReplace"
+   },
+   "widgets_values": [
+    "",
+    "^.*?\\|\\s*",
+    ""
+   ],
+   "title": "JUST THE MOMENT"
+  },
+  {
+   "id": 6,
    "type": "e3a57dc6-b2bf-4d05-927d-3715b40d2a77",
    "pos": [
     -450,
@@ -184,7 +302,7 @@
     470
    ],
    "flags": {},
-   "order": 3,
+   "order": 5,
    "mode": 0,
    "inputs": [
     {
@@ -194,7 +312,7 @@
      "widget": {
       "name": "text"
      },
-     "link": 2
+     "link": 4
     },
     {
      "label": "turbo_lora",
@@ -220,13 +338,13 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      3,
-      7,
-      14,
-      27,
-      40,
-      53,
-      66
+      5,
+      9,
+      16,
+      29,
+      42,
+      55,
+      68
      ]
     }
    ],
@@ -305,7 +423,7 @@
    "title": "MAKE THE PLACE"
   },
   {
-   "id": 5,
+   "id": 7,
    "type": "SaveImage",
    "pos": [
     -450,
@@ -316,13 +434,13 @@
     300
    ],
    "flags": {},
-   "order": 4,
+   "order": 6,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 3
+     "link": 5
     }
    ],
    "outputs": [],
@@ -335,7 +453,7 @@
    "title": "THE PLACE"
   },
   {
-   "id": 6,
+   "id": 8,
    "type": "StringConcatenate",
    "pos": [
     420,
@@ -346,7 +464,7 @@
     200
    ],
    "flags": {},
-   "order": 5,
+   "order": 7,
    "mode": 0,
    "inputs": [
     {
@@ -363,7 +481,7 @@
      "widget": {
       "name": "string_b"
      },
-     "link": 4
+     "link": 6
     },
     {
      "name": "delimiter",
@@ -379,7 +497,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      8
+      10
      ]
     }
    ],
@@ -387,14 +505,14 @@
     "Node name for S&R": "StringConcatenate"
    },
    "widgets_values": [
-    "Keep this exact person from image 1: the same face, hairstyle, hair color, skin tone, body and clothes. Replace the white wall and everything around them with the place from image 2, filling the whole frame edge to edge, naturally lit by the light of that place. Change only their pose to fit the moment. The face is clearly visible, turned about three quarters toward the camera, not looking into the lens. Real candid photo, not posed. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects. In this moment:",
+    "Keep this exact person from image 1: the same face, hairstyle, hair color, skin tone, body and clothes. Replace the white wall and everything around them with the place from image 2, filling the whole frame edge to edge, naturally lit by the light of that place. Change only their pose to fit the moment. The face is clearly visible, turned about three quarters toward the camera, not looking into the lens. Real candid photo, not posed. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects. In this moment:",
     "",
     " "
    ],
    "title": "HERO PROMPT"
   },
   {
-   "id": 7,
+   "id": 9,
    "type": "6ac722f6-a021-4a23-809c-054361a86ea7",
    "pos": [
     880,
@@ -405,19 +523,19 @@
     676
    ],
    "flags": {},
-   "order": 6,
+   "order": 8,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 6
+     "link": 8
     },
     {
      "name": "image2",
      "shape": 7,
      "type": "IMAGE",
-     "link": 7
+     "link": 9
     },
     {
      "name": "image3",
@@ -431,7 +549,7 @@
      "widget": {
       "name": "prompt"
      },
-     "link": 8
+     "link": 10
     },
     {
      "label": "enable_turbo_mode",
@@ -466,17 +584,17 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      9,
       11,
       13,
-      24,
+      15,
       26,
-      37,
+      28,
       39,
-      50,
+      41,
       52,
-      63,
-      65
+      54,
+      65,
+      67
      ]
     }
    ],
@@ -524,7 +642,7 @@
    "title": "MAKE THE HERO FRAME"
   },
   {
-   "id": 8,
+   "id": 10,
    "type": "ResizeAndPadImage",
    "pos": [
     420,
@@ -535,13 +653,13 @@
     160
    ],
    "flags": {},
-   "order": 7,
+   "order": 9,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 5
+     "link": 7
     },
     {
      "name": "target_width",
@@ -581,7 +699,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      6
+      8
      ]
     }
    ],
@@ -597,7 +715,7 @@
    "title": "WIDESCREEN THE PHOTO"
   },
   {
-   "id": 9,
+   "id": 11,
    "type": "SaveImage",
    "pos": [
     1320,
@@ -608,13 +726,13 @@
     300
    ],
    "flags": {},
-   "order": 8,
+   "order": 10,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 9
+     "link": 11
     }
    ],
    "outputs": [],
@@ -627,7 +745,7 @@
    "title": "HERO FRAME"
   },
   {
-   "id": 10,
+   "id": 12,
    "type": "ResolutionSelector",
    "pos": [
     0,
@@ -638,7 +756,7 @@
     170
    ],
    "flags": {},
-   "order": 9,
+   "order": 11,
    "mode": 0,
    "showAdvanced": false,
    "inputs": [],
@@ -647,22 +765,22 @@
      "name": "width",
      "type": "INT",
      "links": [
-      20,
-      33,
-      46,
-      59,
-      72
+      22,
+      35,
+      48,
+      61,
+      74
      ]
     },
     {
      "name": "height",
      "type": "INT",
      "links": [
-      21,
-      34,
-      47,
-      60,
-      73
+      23,
+      36,
+      49,
+      62,
+      75
      ]
     }
    ],
@@ -678,7 +796,7 @@
    ]
   },
   {
-   "id": 11,
+   "id": 13,
    "type": "ConcatenateVideo",
    "pos": [
     2900,
@@ -689,42 +807,42 @@
     200
    ],
    "flags": {},
-   "order": 10,
+   "order": 12,
    "mode": 0,
    "inputs": [
     {
      "name": "videos.video0",
      "localized_name": "video0",
      "type": "VIDEO",
-     "link": 23
+     "link": 25
     },
     {
      "name": "videos.video1",
      "localized_name": "video1",
      "type": "VIDEO",
      "shape": 7,
-     "link": 36
+     "link": 38
     },
     {
      "name": "videos.video2",
      "localized_name": "video2",
      "type": "VIDEO",
      "shape": 7,
-     "link": 49
+     "link": 51
     },
     {
      "name": "videos.video3",
      "localized_name": "video3",
      "type": "VIDEO",
      "shape": 7,
-     "link": 62
+     "link": 64
     },
     {
      "name": "videos.video4",
      "localized_name": "video4",
      "type": "VIDEO",
      "shape": 7,
-     "link": 75
+     "link": 77
     },
     {
      "name": "complete_audio",
@@ -746,7 +864,7 @@
      "name": "VIDEO",
      "type": "VIDEO",
      "links": [
-      10
+      12
      ]
     }
    ],
@@ -759,7 +877,7 @@
    "title": "CUT THE SCENE"
   },
   {
-   "id": 12,
+   "id": 14,
    "type": "SaveVideo",
    "pos": [
     3260,
@@ -770,13 +888,13 @@
     420
    ],
    "flags": {},
-   "order": 11,
+   "order": 13,
    "mode": 0,
    "inputs": [
     {
      "name": "video",
      "type": "VIDEO",
-     "link": 10
+     "link": 12
     }
    ],
    "outputs": [],
@@ -791,7 +909,7 @@
    "title": "THE SCENE"
   },
   {
-   "id": 13,
+   "id": 15,
    "type": "CameraAngle",
    "pos": [
     420,
@@ -802,14 +920,14 @@
     626.9753569114589
    ],
    "flags": {},
-   "order": 12,
+   "order": 14,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "shape": 7,
      "type": "IMAGE",
-     "link": 11
+     "link": 13
     }
    ],
    "outputs": [
@@ -822,7 +940,7 @@
      "name": "prompt",
      "type": "STRING",
      "links": [
-      12
+      14
      ]
     }
    ],
@@ -844,7 +962,7 @@
    "title": "01 WIDE angle"
   },
   {
-   "id": 14,
+   "id": 16,
    "type": "6ac722f6-a021-4a23-809c-054361a86ea7",
    "pos": [
     880,
@@ -855,19 +973,19 @@
     676
    ],
    "flags": {},
-   "order": 13,
+   "order": 15,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 13
+     "link": 15
     },
     {
      "name": "image2",
      "shape": 7,
      "type": "IMAGE",
-     "link": 14
+     "link": 16
     },
     {
      "name": "image3",
@@ -881,7 +999,7 @@
      "widget": {
       "name": "prompt"
      },
-     "link": 15
+     "link": 17
     },
     {
      "label": "enable_turbo_mode",
@@ -916,8 +1034,8 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      16,
-      18
+      18,
+      20
      ]
     }
    ],
@@ -965,7 +1083,7 @@
    "title": "01 WIDE frame"
   },
   {
-   "id": 15,
+   "id": 17,
    "type": "StringConcatenate",
    "pos": [
     880,
@@ -976,7 +1094,7 @@
     160
    ],
    "flags": {},
-   "order": 14,
+   "order": 16,
    "mode": 0,
    "inputs": [
     {
@@ -985,7 +1103,7 @@
      "widget": {
       "name": "string_a"
      },
-     "link": 12
+     "link": 14
     },
     {
      "name": "string_b",
@@ -1009,7 +1127,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      15
+      17
      ]
     }
    ],
@@ -1018,13 +1136,13 @@
    },
    "widgets_values": [
     "",
-    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects.",
+    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects.",
     " "
    ],
    "title": "01 WIDE match the place"
   },
   {
-   "id": 16,
+   "id": 18,
    "type": "SaveImage",
    "pos": [
     1320,
@@ -1035,13 +1153,13 @@
     300
    ],
    "flags": {},
-   "order": 15,
+   "order": 17,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 16
+     "link": 18
     }
    ],
    "outputs": [],
@@ -1054,7 +1172,7 @@
    "title": "01 WIDE still"
   },
   {
-   "id": 17,
+   "id": 19,
    "type": "StringConcatenate",
    "pos": [
     1320,
@@ -1065,7 +1183,7 @@
     200
    ],
    "flags": {},
-   "order": 16,
+   "order": 18,
    "mode": 0,
    "inputs": [
     {
@@ -1074,7 +1192,7 @@
      "widget": {
       "name": "string_a"
      },
-     "link": 17
+     "link": 19
     },
     {
      "name": "string_b",
@@ -1098,7 +1216,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      19
+      21
      ]
     }
    ],
@@ -1107,13 +1225,13 @@
    },
    "widgets_values": [
     "",
-    "Wide establishing shot. Shot handheld by a camera operator: gentle breathing float, small drifting reframes, natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. Same characters, same wardrobe, same location and same view out of the windows as the first frame. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects.",
+    "Wide establishing shot. Shot handheld by a camera operator: gentle breathing float, small drifting reframes, natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. Same characters, same wardrobe, same location and same view out of the windows as the first frame. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects.",
     " "
    ],
    "title": "01 WIDE camera op"
   },
   {
-   "id": 18,
+   "id": 20,
    "type": "6e397a2b-68f7-48f6-8930-f3a5491a163c",
    "pos": [
     1720,
@@ -1124,14 +1242,14 @@
     670
    ],
    "flags": {},
-   "order": 17,
+   "order": 19,
    "mode": 0,
    "inputs": [
     {
      "label": "first_frame",
      "name": "input",
      "type": "IMAGE,MASK",
-     "link": 18
+     "link": 20
     },
     {
      "label": "prompt",
@@ -1140,7 +1258,7 @@
      "widget": {
       "name": "value"
      },
-     "link": 19
+     "link": 21
     },
     {
      "label": "prompt_enhance",
@@ -1167,7 +1285,7 @@
      "widget": {
       "name": "value_3"
      },
-     "link": 20
+     "link": 22
     },
     {
      "label": "height",
@@ -1176,7 +1294,7 @@
      "widget": {
       "name": "value_4"
      },
-     "link": 21
+     "link": 23
     },
     {
      "label": "frame_rate",
@@ -1229,8 +1347,8 @@
      "name": "VIDEO",
      "type": "VIDEO",
      "links": [
-      22,
-      23
+      24,
+      25
      ]
     }
    ],
@@ -1257,7 +1375,7 @@
    "title": "01 WIDE shot"
   },
   {
-   "id": 19,
+   "id": 21,
    "type": "SaveVideo",
    "pos": [
     2280,
@@ -1268,13 +1386,13 @@
     360
    ],
    "flags": {},
-   "order": 18,
+   "order": 20,
    "mode": 0,
    "inputs": [
     {
      "name": "video",
      "type": "VIDEO",
-     "link": 22
+     "link": 24
     }
    ],
    "outputs": [],
@@ -1289,7 +1407,7 @@
    "title": "01 WIDE"
   },
   {
-   "id": 20,
+   "id": 22,
    "type": "CameraAngle",
    "pos": [
     420,
@@ -1300,14 +1418,14 @@
     626.9753569114589
    ],
    "flags": {},
-   "order": 19,
+   "order": 21,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "shape": 7,
      "type": "IMAGE",
-     "link": 24
+     "link": 26
     }
    ],
    "outputs": [
@@ -1320,7 +1438,7 @@
      "name": "prompt",
      "type": "STRING",
      "links": [
-      25
+      27
      ]
     }
    ],
@@ -1342,7 +1460,7 @@
    "title": "02 MEDIUM angle"
   },
   {
-   "id": 21,
+   "id": 23,
    "type": "6ac722f6-a021-4a23-809c-054361a86ea7",
    "pos": [
     880,
@@ -1353,19 +1471,19 @@
     676
    ],
    "flags": {},
-   "order": 20,
+   "order": 22,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 26
+     "link": 28
     },
     {
      "name": "image2",
      "shape": 7,
      "type": "IMAGE",
-     "link": 27
+     "link": 29
     },
     {
      "name": "image3",
@@ -1379,7 +1497,7 @@
      "widget": {
       "name": "prompt"
      },
-     "link": 28
+     "link": 30
     },
     {
      "label": "enable_turbo_mode",
@@ -1414,8 +1532,8 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      29,
-      31
+      31,
+      33
      ]
     }
    ],
@@ -1463,7 +1581,7 @@
    "title": "02 MEDIUM frame"
   },
   {
-   "id": 22,
+   "id": 24,
    "type": "StringConcatenate",
    "pos": [
     880,
@@ -1474,7 +1592,7 @@
     160
    ],
    "flags": {},
-   "order": 21,
+   "order": 23,
    "mode": 0,
    "inputs": [
     {
@@ -1483,7 +1601,7 @@
      "widget": {
       "name": "string_a"
      },
-     "link": 25
+     "link": 27
     },
     {
      "name": "string_b",
@@ -1507,7 +1625,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      28
+      30
      ]
     }
    ],
@@ -1516,13 +1634,13 @@
    },
    "widgets_values": [
     "",
-    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects.",
+    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects.",
     " "
    ],
    "title": "02 MEDIUM match the place"
   },
   {
-   "id": 23,
+   "id": 25,
    "type": "SaveImage",
    "pos": [
     1320,
@@ -1533,13 +1651,13 @@
     300
    ],
    "flags": {},
-   "order": 22,
+   "order": 24,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 29
+     "link": 31
     }
    ],
    "outputs": [],
@@ -1552,7 +1670,7 @@
    "title": "02 MEDIUM still"
   },
   {
-   "id": 24,
+   "id": 26,
    "type": "StringConcatenate",
    "pos": [
     1320,
@@ -1563,7 +1681,7 @@
     200
    ],
    "flags": {},
-   "order": 23,
+   "order": 25,
    "mode": 0,
    "inputs": [
     {
@@ -1572,7 +1690,7 @@
      "widget": {
       "name": "string_a"
      },
-     "link": 30
+     "link": 32
     },
     {
      "name": "string_b",
@@ -1596,7 +1714,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      32
+      34
      ]
     }
    ],
@@ -1605,13 +1723,13 @@
    },
    "widgets_values": [
     "",
-    "Medium shot. Shot handheld by a camera operator: gentle breathing float, small drifting reframes, natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. Same characters, same wardrobe, same location and same view out of the windows as the first frame. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects.",
+    "Medium shot. Shot handheld by a camera operator: gentle breathing float, small drifting reframes, natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. Same characters, same wardrobe, same location and same view out of the windows as the first frame. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects.",
     " "
    ],
    "title": "02 MEDIUM camera op"
   },
   {
-   "id": 25,
+   "id": 27,
    "type": "6e397a2b-68f7-48f6-8930-f3a5491a163c",
    "pos": [
     1720,
@@ -1622,14 +1740,14 @@
     670
    ],
    "flags": {},
-   "order": 24,
+   "order": 26,
    "mode": 0,
    "inputs": [
     {
      "label": "first_frame",
      "name": "input",
      "type": "IMAGE,MASK",
-     "link": 31
+     "link": 33
     },
     {
      "label": "prompt",
@@ -1638,7 +1756,7 @@
      "widget": {
       "name": "value"
      },
-     "link": 32
+     "link": 34
     },
     {
      "label": "prompt_enhance",
@@ -1665,7 +1783,7 @@
      "widget": {
       "name": "value_3"
      },
-     "link": 33
+     "link": 35
     },
     {
      "label": "height",
@@ -1674,7 +1792,7 @@
      "widget": {
       "name": "value_4"
      },
-     "link": 34
+     "link": 36
     },
     {
      "label": "frame_rate",
@@ -1727,8 +1845,8 @@
      "name": "VIDEO",
      "type": "VIDEO",
      "links": [
-      35,
-      36
+      37,
+      38
      ]
     }
    ],
@@ -1755,7 +1873,7 @@
    "title": "02 MEDIUM shot"
   },
   {
-   "id": 26,
+   "id": 28,
    "type": "SaveVideo",
    "pos": [
     2280,
@@ -1766,13 +1884,13 @@
     360
    ],
    "flags": {},
-   "order": 25,
+   "order": 27,
    "mode": 0,
    "inputs": [
     {
      "name": "video",
      "type": "VIDEO",
-     "link": 35
+     "link": 37
     }
    ],
    "outputs": [],
@@ -1787,7 +1905,7 @@
    "title": "02 MEDIUM"
   },
   {
-   "id": 27,
+   "id": 29,
    "type": "CameraAngle",
    "pos": [
     420,
@@ -1798,14 +1916,14 @@
     626.9753569114589
    ],
    "flags": {},
-   "order": 26,
+   "order": 28,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "shape": 7,
      "type": "IMAGE",
-     "link": 37
+     "link": 39
     }
    ],
    "outputs": [
@@ -1818,7 +1936,7 @@
      "name": "prompt",
      "type": "STRING",
      "links": [
-      38
+      40
      ]
     }
    ],
@@ -1840,7 +1958,7 @@
    "title": "03 CLOSE UP angle"
   },
   {
-   "id": 28,
+   "id": 30,
    "type": "6ac722f6-a021-4a23-809c-054361a86ea7",
    "pos": [
     880,
@@ -1851,19 +1969,19 @@
     676
    ],
    "flags": {},
-   "order": 27,
+   "order": 29,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 39
+     "link": 41
     },
     {
      "name": "image2",
      "shape": 7,
      "type": "IMAGE",
-     "link": 40
+     "link": 42
     },
     {
      "name": "image3",
@@ -1877,7 +1995,7 @@
      "widget": {
       "name": "prompt"
      },
-     "link": 41
+     "link": 43
     },
     {
      "label": "enable_turbo_mode",
@@ -1912,8 +2030,8 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      42,
-      44
+      44,
+      46
      ]
     }
    ],
@@ -1961,7 +2079,7 @@
    "title": "03 CLOSE UP frame"
   },
   {
-   "id": 29,
+   "id": 31,
    "type": "StringConcatenate",
    "pos": [
     880,
@@ -1972,7 +2090,7 @@
     160
    ],
    "flags": {},
-   "order": 28,
+   "order": 30,
    "mode": 0,
    "inputs": [
     {
@@ -1981,7 +2099,7 @@
      "widget": {
       "name": "string_a"
      },
-     "link": 38
+     "link": 40
     },
     {
      "name": "string_b",
@@ -2005,7 +2123,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      41
+      43
      ]
     }
    ],
@@ -2014,13 +2132,13 @@
    },
    "widgets_values": [
     "",
-    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects.",
+    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects.",
     " "
    ],
    "title": "03 CLOSE UP match the place"
   },
   {
-   "id": 30,
+   "id": 32,
    "type": "SaveImage",
    "pos": [
     1320,
@@ -2031,13 +2149,13 @@
     300
    ],
    "flags": {},
-   "order": 29,
+   "order": 31,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 42
+     "link": 44
     }
    ],
    "outputs": [],
@@ -2050,7 +2168,7 @@
    "title": "03 CLOSE UP still"
   },
   {
-   "id": 31,
+   "id": 33,
    "type": "StringConcatenate",
    "pos": [
     1320,
@@ -2061,7 +2179,7 @@
     200
    ],
    "flags": {},
-   "order": 30,
+   "order": 32,
    "mode": 0,
    "inputs": [
     {
@@ -2070,7 +2188,7 @@
      "widget": {
       "name": "string_a"
      },
-     "link": 43
+     "link": 45
     },
     {
      "name": "string_b",
@@ -2094,7 +2212,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      45
+      47
      ]
     }
    ],
@@ -2103,13 +2221,13 @@
    },
    "widgets_values": [
     "",
-    "Close up shot. Shot handheld by a camera operator: gentle breathing float, small drifting reframes, natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. Same characters, same wardrobe, same location and same view out of the windows as the first frame. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects.",
+    "Close up shot. Shot handheld by a camera operator: gentle breathing float, small drifting reframes, natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. Same characters, same wardrobe, same location and same view out of the windows as the first frame. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects.",
     " "
    ],
    "title": "03 CLOSE UP camera op"
   },
   {
-   "id": 32,
+   "id": 34,
    "type": "6e397a2b-68f7-48f6-8930-f3a5491a163c",
    "pos": [
     1720,
@@ -2120,14 +2238,14 @@
     670
    ],
    "flags": {},
-   "order": 31,
+   "order": 33,
    "mode": 0,
    "inputs": [
     {
      "label": "first_frame",
      "name": "input",
      "type": "IMAGE,MASK",
-     "link": 44
+     "link": 46
     },
     {
      "label": "prompt",
@@ -2136,7 +2254,7 @@
      "widget": {
       "name": "value"
      },
-     "link": 45
+     "link": 47
     },
     {
      "label": "prompt_enhance",
@@ -2163,7 +2281,7 @@
      "widget": {
       "name": "value_3"
      },
-     "link": 46
+     "link": 48
     },
     {
      "label": "height",
@@ -2172,7 +2290,7 @@
      "widget": {
       "name": "value_4"
      },
-     "link": 47
+     "link": 49
     },
     {
      "label": "frame_rate",
@@ -2225,8 +2343,8 @@
      "name": "VIDEO",
      "type": "VIDEO",
      "links": [
-      48,
-      49
+      50,
+      51
      ]
     }
    ],
@@ -2253,7 +2371,7 @@
    "title": "03 CLOSE UP shot"
   },
   {
-   "id": 33,
+   "id": 35,
    "type": "SaveVideo",
    "pos": [
     2280,
@@ -2264,13 +2382,13 @@
     360
    ],
    "flags": {},
-   "order": 32,
+   "order": 34,
    "mode": 0,
    "inputs": [
     {
      "name": "video",
      "type": "VIDEO",
-     "link": 48
+     "link": 50
     }
    ],
    "outputs": [],
@@ -2285,7 +2403,7 @@
    "title": "03 CLOSE UP"
   },
   {
-   "id": 34,
+   "id": 36,
    "type": "CameraAngle",
    "pos": [
     420,
@@ -2296,14 +2414,14 @@
     626.9753569114589
    ],
    "flags": {},
-   "order": 33,
+   "order": 35,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "shape": 7,
      "type": "IMAGE",
-     "link": 50
+     "link": 52
     }
    ],
    "outputs": [
@@ -2316,7 +2434,7 @@
      "name": "prompt",
      "type": "STRING",
      "links": [
-      51
+      53
      ]
     }
    ],
@@ -2338,7 +2456,7 @@
    "title": "04 PROFILE angle"
   },
   {
-   "id": 35,
+   "id": 37,
    "type": "6ac722f6-a021-4a23-809c-054361a86ea7",
    "pos": [
     880,
@@ -2349,19 +2467,19 @@
     676
    ],
    "flags": {},
-   "order": 34,
+   "order": 36,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 52
+     "link": 54
     },
     {
      "name": "image2",
      "shape": 7,
      "type": "IMAGE",
-     "link": 53
+     "link": 55
     },
     {
      "name": "image3",
@@ -2375,7 +2493,7 @@
      "widget": {
       "name": "prompt"
      },
-     "link": 54
+     "link": 56
     },
     {
      "label": "enable_turbo_mode",
@@ -2410,8 +2528,8 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      55,
-      57
+      57,
+      59
      ]
     }
    ],
@@ -2459,7 +2577,7 @@
    "title": "04 PROFILE frame"
   },
   {
-   "id": 36,
+   "id": 38,
    "type": "StringConcatenate",
    "pos": [
     880,
@@ -2470,7 +2588,7 @@
     160
    ],
    "flags": {},
-   "order": 35,
+   "order": 37,
    "mode": 0,
    "inputs": [
     {
@@ -2479,7 +2597,7 @@
      "widget": {
       "name": "string_a"
      },
-     "link": 51
+     "link": 53
     },
     {
      "name": "string_b",
@@ -2503,7 +2621,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      54
+      56
      ]
     }
    ],
@@ -2512,13 +2630,13 @@
    },
    "widgets_values": [
     "",
-    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects.",
+    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects.",
     " "
    ],
    "title": "04 PROFILE match the place"
   },
   {
-   "id": 37,
+   "id": 39,
    "type": "SaveImage",
    "pos": [
     1320,
@@ -2529,13 +2647,13 @@
     300
    ],
    "flags": {},
-   "order": 36,
+   "order": 38,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 55
+     "link": 57
     }
    ],
    "outputs": [],
@@ -2548,7 +2666,7 @@
    "title": "04 PROFILE still"
   },
   {
-   "id": 38,
+   "id": 40,
    "type": "StringConcatenate",
    "pos": [
     1320,
@@ -2559,7 +2677,7 @@
     200
    ],
    "flags": {},
-   "order": 37,
+   "order": 39,
    "mode": 0,
    "inputs": [
     {
@@ -2568,7 +2686,7 @@
      "widget": {
       "name": "string_a"
      },
-     "link": 56
+     "link": 58
     },
     {
      "name": "string_b",
@@ -2592,7 +2710,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      58
+      60
      ]
     }
    ],
@@ -2601,13 +2719,13 @@
    },
    "widgets_values": [
     "",
-    "Side profile medium shot. Shot handheld by a camera operator: gentle breathing float, small drifting reframes, natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. Same characters, same wardrobe, same location and same view out of the windows as the first frame. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects.",
+    "Side profile medium shot. Shot handheld by a camera operator: gentle breathing float, small drifting reframes, natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. Same characters, same wardrobe, same location and same view out of the windows as the first frame. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects.",
     " "
    ],
    "title": "04 PROFILE camera op"
   },
   {
-   "id": 39,
+   "id": 41,
    "type": "6e397a2b-68f7-48f6-8930-f3a5491a163c",
    "pos": [
     1720,
@@ -2618,14 +2736,14 @@
     670
    ],
    "flags": {},
-   "order": 38,
+   "order": 40,
    "mode": 0,
    "inputs": [
     {
      "label": "first_frame",
      "name": "input",
      "type": "IMAGE,MASK",
-     "link": 57
+     "link": 59
     },
     {
      "label": "prompt",
@@ -2634,7 +2752,7 @@
      "widget": {
       "name": "value"
      },
-     "link": 58
+     "link": 60
     },
     {
      "label": "prompt_enhance",
@@ -2661,7 +2779,7 @@
      "widget": {
       "name": "value_3"
      },
-     "link": 59
+     "link": 61
     },
     {
      "label": "height",
@@ -2670,7 +2788,7 @@
      "widget": {
       "name": "value_4"
      },
-     "link": 60
+     "link": 62
     },
     {
      "label": "frame_rate",
@@ -2723,8 +2841,8 @@
      "name": "VIDEO",
      "type": "VIDEO",
      "links": [
-      61,
-      62
+      63,
+      64
      ]
     }
    ],
@@ -2751,7 +2869,7 @@
    "title": "04 PROFILE shot"
   },
   {
-   "id": 40,
+   "id": 42,
    "type": "SaveVideo",
    "pos": [
     2280,
@@ -2762,13 +2880,13 @@
     360
    ],
    "flags": {},
-   "order": 39,
+   "order": 41,
    "mode": 0,
    "inputs": [
     {
      "name": "video",
      "type": "VIDEO",
-     "link": 61
+     "link": 63
     }
    ],
    "outputs": [],
@@ -2783,7 +2901,7 @@
    "title": "04 PROFILE"
   },
   {
-   "id": 41,
+   "id": 43,
    "type": "CameraAngle",
    "pos": [
     420,
@@ -2794,14 +2912,14 @@
     626.9753569114589
    ],
    "flags": {},
-   "order": 40,
+   "order": 42,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "shape": 7,
      "type": "IMAGE",
-     "link": 63
+     "link": 65
     }
    ],
    "outputs": [
@@ -2814,7 +2932,7 @@
      "name": "prompt",
      "type": "STRING",
      "links": [
-      64
+      66
      ]
     }
    ],
@@ -2836,7 +2954,7 @@
    "title": "05 LOW ANGLE angle"
   },
   {
-   "id": 42,
+   "id": 44,
    "type": "6ac722f6-a021-4a23-809c-054361a86ea7",
    "pos": [
     880,
@@ -2847,19 +2965,19 @@
     676
    ],
    "flags": {},
-   "order": 41,
+   "order": 43,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 65
+     "link": 67
     },
     {
      "name": "image2",
      "shape": 7,
      "type": "IMAGE",
-     "link": 66
+     "link": 68
     },
     {
      "name": "image3",
@@ -2873,7 +2991,7 @@
      "widget": {
       "name": "prompt"
      },
-     "link": 67
+     "link": 69
     },
     {
      "label": "enable_turbo_mode",
@@ -2908,8 +3026,8 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      68,
-      70
+      70,
+      72
      ]
     }
    ],
@@ -2957,7 +3075,7 @@
    "title": "05 LOW ANGLE frame"
   },
   {
-   "id": 43,
+   "id": 45,
    "type": "StringConcatenate",
    "pos": [
     880,
@@ -2968,7 +3086,7 @@
     160
    ],
    "flags": {},
-   "order": 42,
+   "order": 44,
    "mode": 0,
    "inputs": [
     {
@@ -2977,7 +3095,7 @@
      "widget": {
       "name": "string_a"
      },
-     "link": 64
+     "link": 66
     },
     {
      "name": "string_b",
@@ -3001,7 +3119,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      67
+      69
      ]
     }
    ],
@@ -3010,13 +3128,13 @@
    },
    "widgets_values": [
     "",
-    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects.",
+    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects.",
     " "
    ],
    "title": "05 LOW ANGLE match the place"
   },
   {
-   "id": 44,
+   "id": 46,
    "type": "SaveImage",
    "pos": [
     1320,
@@ -3027,13 +3145,13 @@
     300
    ],
    "flags": {},
-   "order": 43,
+   "order": 45,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 68
+     "link": 70
     }
    ],
    "outputs": [],
@@ -3046,7 +3164,7 @@
    "title": "05 LOW ANGLE still"
   },
   {
-   "id": 45,
+   "id": 47,
    "type": "StringConcatenate",
    "pos": [
     1320,
@@ -3057,7 +3175,7 @@
     200
    ],
    "flags": {},
-   "order": 44,
+   "order": 46,
    "mode": 0,
    "inputs": [
     {
@@ -3066,7 +3184,7 @@
      "widget": {
       "name": "string_a"
      },
-     "link": 69
+     "link": 71
     },
     {
      "name": "string_b",
@@ -3090,7 +3208,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      71
+      73
      ]
     }
    ],
@@ -3099,13 +3217,13 @@
    },
    "widgets_values": [
     "",
-    "Low angle hero shot. Shot handheld by a camera operator: gentle breathing float, small drifting reframes, natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. Same characters, same wardrobe, same location and same view out of the windows as the first frame. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Phones, screens and papers are seen from the back or edge on and held the right way round. No text, no logos, no watermarks. No morphing faces, no melting objects.",
+    "Low angle hero shot. Shot handheld by a camera operator: gentle breathing float, small drifting reframes, natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. Same characters, same wardrobe, same location and same view out of the windows as the first frame. Rules: every person appears only once, no duplicates, no twins, no extra people. Natural human anatomy, two hands with five fingers, true to life scale between people and objects. Hands stay relaxed and empty unless the moment needs them. No text, no logos, no watermarks. No morphing faces, no melting objects.",
     " "
    ],
    "title": "05 LOW ANGLE camera op"
   },
   {
-   "id": 46,
+   "id": 48,
    "type": "6e397a2b-68f7-48f6-8930-f3a5491a163c",
    "pos": [
     1720,
@@ -3116,14 +3234,14 @@
     670
    ],
    "flags": {},
-   "order": 45,
+   "order": 47,
    "mode": 0,
    "inputs": [
     {
      "label": "first_frame",
      "name": "input",
      "type": "IMAGE,MASK",
-     "link": 70
+     "link": 72
     },
     {
      "label": "prompt",
@@ -3132,7 +3250,7 @@
      "widget": {
       "name": "value"
      },
-     "link": 71
+     "link": 73
     },
     {
      "label": "prompt_enhance",
@@ -3159,7 +3277,7 @@
      "widget": {
       "name": "value_3"
      },
-     "link": 72
+     "link": 74
     },
     {
      "label": "height",
@@ -3168,7 +3286,7 @@
      "widget": {
       "name": "value_4"
      },
-     "link": 73
+     "link": 75
     },
     {
      "label": "frame_rate",
@@ -3221,8 +3339,8 @@
      "name": "VIDEO",
      "type": "VIDEO",
      "links": [
-      74,
-      75
+      76,
+      77
      ]
     }
    ],
@@ -3249,7 +3367,7 @@
    "title": "05 LOW ANGLE shot"
   },
   {
-   "id": 47,
+   "id": 49,
    "type": "SaveVideo",
    "pos": [
     2280,
@@ -3260,13 +3378,13 @@
     360
    ],
    "flags": {},
-   "order": 46,
+   "order": 48,
    "mode": 0,
    "inputs": [
     {
      "name": "video",
      "type": "VIDEO",
-     "link": 74
+     "link": 76
     }
    ],
    "outputs": [],
@@ -3286,141 +3404,141 @@
    1,
    2,
    0,
-   3,
-   1,
+   4,
+   0,
    "STRING"
   ],
   [
    2,
-   3,
-   0,
-   4,
-   0,
-   "STRING"
-  ],
-  [
-   3,
-   4,
-   0,
-   5,
-   0,
-   "IMAGE"
-  ],
-  [
-   4,
    2,
    0,
-   6,
+   5,
+   0,
+   "STRING"
+  ],
+  [
+   3,
+   4,
+   0,
+   3,
    1,
+   "STRING"
+  ],
+  [
+   4,
+   3,
+   0,
+   6,
+   0,
    "STRING"
   ],
   [
    5,
-   1,
+   6,
    0,
-   8,
+   7,
    0,
    "IMAGE"
   ],
   [
    6,
+   5,
+   0,
    8,
-   0,
-   7,
-   0,
-   "IMAGE"
-  ],
-  [
-   7,
-   4,
-   0,
-   7,
    1,
-   "IMAGE"
-  ],
-  [
-   8,
-   6,
-   0,
-   7,
-   3,
    "STRING"
   ],
   [
-   9,
    7,
+   1,
+   0,
+   10,
+   0,
+   "IMAGE"
+  ],
+  [
+   8,
+   10,
    0,
    9,
    0,
+   "IMAGE"
+  ],
+  [
+   9,
+   6,
+   0,
+   9,
+   1,
    "IMAGE"
   ],
   [
    10,
-   11,
+   8,
    0,
-   12,
-   0,
-   "VIDEO"
-  ],
-  [
-   11,
-   7,
-   0,
-   13,
-   0,
-   "IMAGE"
-  ],
-  [
-   12,
-   13,
-   1,
-   15,
-   0,
-   "STRING"
-  ],
-  [
-   13,
-   7,
-   0,
-   14,
-   0,
-   "IMAGE"
-  ],
-  [
-   14,
-   4,
-   0,
-   14,
-   1,
-   "IMAGE"
-  ],
-  [
-   15,
-   15,
-   0,
-   14,
+   9,
    3,
    "STRING"
   ],
   [
-   16,
+   11,
+   9,
+   0,
+   11,
+   0,
+   "IMAGE"
+  ],
+  [
+   12,
+   13,
+   0,
    14,
+   0,
+   "VIDEO"
+  ],
+  [
+   13,
+   9,
+   0,
+   15,
+   0,
+   "IMAGE"
+  ],
+  [
+   14,
+   15,
+   1,
+   17,
+   0,
+   "STRING"
+  ],
+  [
+   15,
+   9,
    0,
    16,
    0,
    "IMAGE"
   ],
   [
-   17,
-   2,
+   16,
+   6,
    0,
+   16,
+   1,
+   "IMAGE"
+  ],
+  [
+   17,
    17,
    0,
+   16,
+   3,
    "STRING"
   ],
   [
    18,
-   14,
+   16,
    0,
    18,
    0,
@@ -3428,103 +3546,103 @@
   ],
   [
    19,
-   17,
+   2,
    0,
-   18,
-   1,
+   19,
+   0,
    "STRING"
   ],
   [
    20,
-   10,
+   16,
    0,
-   18,
-   4,
-   "INT"
+   20,
+   0,
+   "IMAGE"
   ],
   [
    21,
-   10,
+   19,
+   0,
+   20,
    1,
-   18,
+   "STRING"
+  ],
+  [
+   22,
+   12,
+   0,
+   20,
+   4,
+   "INT"
+  ],
+  [
+   23,
+   12,
+   1,
+   20,
    5,
    "INT"
   ],
   [
-   22,
-   18,
-   0,
-   19,
-   0,
-   "VIDEO"
-  ],
-  [
-   23,
-   18,
-   0,
-   11,
-   0,
-   "VIDEO"
-  ],
-  [
    24,
-   7,
-   0,
    20,
    0,
-   "IMAGE"
+   21,
+   0,
+   "VIDEO"
   ],
   [
    25,
    20,
-   1,
-   22,
    0,
-   "STRING"
+   13,
+   0,
+   "VIDEO"
   ],
   [
    26,
-   7,
+   9,
    0,
-   21,
+   22,
    0,
    "IMAGE"
   ],
   [
    27,
-   4,
-   0,
-   21,
-   1,
-   "IMAGE"
-  ],
-  [
-   28,
    22,
+   1,
+   24,
    0,
-   21,
-   3,
    "STRING"
   ],
   [
-   29,
-   21,
+   28,
+   9,
    0,
    23,
    0,
    "IMAGE"
   ],
   [
-   30,
-   2,
+   29,
+   6,
    0,
+   23,
+   1,
+   "IMAGE"
+  ],
+  [
+   30,
    24,
    0,
+   23,
+   3,
    "STRING"
   ],
   [
    31,
-   21,
+   23,
    0,
    25,
    0,
@@ -3532,103 +3650,103 @@
   ],
   [
    32,
-   24,
+   2,
    0,
-   25,
-   1,
+   26,
+   0,
    "STRING"
   ],
   [
    33,
-   10,
-   0,
-   25,
-   4,
-   "INT"
-  ],
-  [
-   34,
-   10,
-   1,
-   25,
-   5,
-   "INT"
-  ],
-  [
-   35,
-   25,
-   0,
-   26,
-   0,
-   "VIDEO"
-  ],
-  [
-   36,
-   25,
-   0,
-   11,
-   1,
-   "VIDEO"
-  ],
-  [
-   37,
-   7,
+   23,
    0,
    27,
    0,
    "IMAGE"
   ],
   [
-   38,
+   34,
+   26,
+   0,
    27,
    1,
-   29,
-   0,
    "STRING"
   ],
   [
-   39,
-   7,
+   35,
+   12,
+   0,
+   27,
+   4,
+   "INT"
+  ],
+  [
+   36,
+   12,
+   1,
+   27,
+   5,
+   "INT"
+  ],
+  [
+   37,
+   27,
    0,
    28,
+   0,
+   "VIDEO"
+  ],
+  [
+   38,
+   27,
+   0,
+   13,
+   1,
+   "VIDEO"
+  ],
+  [
+   39,
+   9,
+   0,
+   29,
    0,
    "IMAGE"
   ],
   [
    40,
-   4,
-   0,
-   28,
-   1,
-   "IMAGE"
-  ],
-  [
-   41,
    29,
+   1,
+   31,
    0,
-   28,
-   3,
    "STRING"
   ],
   [
-   42,
-   28,
+   41,
+   9,
    0,
    30,
    0,
    "IMAGE"
   ],
   [
-   43,
-   2,
+   42,
+   6,
    0,
+   30,
+   1,
+   "IMAGE"
+  ],
+  [
+   43,
    31,
    0,
+   30,
+   3,
    "STRING"
   ],
   [
    44,
-   28,
+   30,
    0,
    32,
    0,
@@ -3636,103 +3754,103 @@
   ],
   [
    45,
-   31,
+   2,
    0,
-   32,
-   1,
+   33,
+   0,
    "STRING"
   ],
   [
    46,
-   10,
-   0,
-   32,
-   4,
-   "INT"
-  ],
-  [
-   47,
-   10,
-   1,
-   32,
-   5,
-   "INT"
-  ],
-  [
-   48,
-   32,
-   0,
-   33,
-   0,
-   "VIDEO"
-  ],
-  [
-   49,
-   32,
-   0,
-   11,
-   2,
-   "VIDEO"
-  ],
-  [
-   50,
-   7,
+   30,
    0,
    34,
    0,
    "IMAGE"
   ],
   [
-   51,
+   47,
+   33,
+   0,
    34,
    1,
-   36,
-   0,
    "STRING"
   ],
   [
-   52,
-   7,
+   48,
+   12,
+   0,
+   34,
+   4,
+   "INT"
+  ],
+  [
+   49,
+   12,
+   1,
+   34,
+   5,
+   "INT"
+  ],
+  [
+   50,
+   34,
    0,
    35,
+   0,
+   "VIDEO"
+  ],
+  [
+   51,
+   34,
+   0,
+   13,
+   2,
+   "VIDEO"
+  ],
+  [
+   52,
+   9,
+   0,
+   36,
    0,
    "IMAGE"
   ],
   [
    53,
-   4,
-   0,
-   35,
-   1,
-   "IMAGE"
-  ],
-  [
-   54,
    36,
+   1,
+   38,
    0,
-   35,
-   3,
    "STRING"
   ],
   [
-   55,
-   35,
+   54,
+   9,
    0,
    37,
    0,
    "IMAGE"
   ],
   [
-   56,
-   2,
+   55,
+   6,
    0,
+   37,
+   1,
+   "IMAGE"
+  ],
+  [
+   56,
    38,
    0,
+   37,
+   3,
    "STRING"
   ],
   [
    57,
-   35,
+   37,
    0,
    39,
    0,
@@ -3740,103 +3858,103 @@
   ],
   [
    58,
-   38,
+   2,
    0,
-   39,
-   1,
+   40,
+   0,
    "STRING"
   ],
   [
    59,
-   10,
-   0,
-   39,
-   4,
-   "INT"
-  ],
-  [
-   60,
-   10,
-   1,
-   39,
-   5,
-   "INT"
-  ],
-  [
-   61,
-   39,
-   0,
-   40,
-   0,
-   "VIDEO"
-  ],
-  [
-   62,
-   39,
-   0,
-   11,
-   3,
-   "VIDEO"
-  ],
-  [
-   63,
-   7,
+   37,
    0,
    41,
    0,
    "IMAGE"
   ],
   [
-   64,
+   60,
+   40,
+   0,
    41,
    1,
-   43,
-   0,
    "STRING"
   ],
   [
-   65,
-   7,
+   61,
+   12,
+   0,
+   41,
+   4,
+   "INT"
+  ],
+  [
+   62,
+   12,
+   1,
+   41,
+   5,
+   "INT"
+  ],
+  [
+   63,
+   41,
    0,
    42,
+   0,
+   "VIDEO"
+  ],
+  [
+   64,
+   41,
+   0,
+   13,
+   3,
+   "VIDEO"
+  ],
+  [
+   65,
+   9,
+   0,
+   43,
    0,
    "IMAGE"
   ],
   [
    66,
-   4,
-   0,
-   42,
-   1,
-   "IMAGE"
-  ],
-  [
-   67,
    43,
+   1,
+   45,
    0,
-   42,
-   3,
    "STRING"
   ],
   [
-   68,
-   42,
+   67,
+   9,
    0,
    44,
    0,
    "IMAGE"
   ],
   [
-   69,
-   2,
+   68,
+   6,
    0,
+   44,
+   1,
+   "IMAGE"
+  ],
+  [
+   69,
    45,
    0,
+   44,
+   3,
    "STRING"
   ],
   [
    70,
-   42,
+   44,
    0,
    46,
    0,
@@ -3844,41 +3962,57 @@
   ],
   [
    71,
-   45,
+   2,
    0,
-   46,
-   1,
+   47,
+   0,
    "STRING"
   ],
   [
    72,
-   10,
+   44,
    0,
-   46,
+   48,
+   0,
+   "IMAGE"
+  ],
+  [
+   73,
+   47,
+   0,
+   48,
+   1,
+   "STRING"
+  ],
+  [
+   74,
+   12,
+   0,
+   48,
    4,
    "INT"
   ],
   [
-   73,
-   10,
+   75,
+   12,
    1,
-   46,
+   48,
    5,
    "INT"
   ],
   [
-   74,
-   46,
+   76,
+   48,
    0,
-   47,
+   49,
    0,
    "VIDEO"
   ],
   [
-   75,
-   46,
+   77,
+   48,
    0,
-   11,
+   13,
    4,
    "VIDEO"
   ]
@@ -11453,14 +11587,14 @@
     ]
    ],
    "outputs": [
-    12,
-    5,
-    9,
-    19,
-    26,
-    33,
-    40,
-    47
+    14,
+    7,
+    11,
+    21,
+    28,
+    35,
+    42,
+    49
    ]
   },
   "ds": {

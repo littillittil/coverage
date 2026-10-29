@@ -29,7 +29,8 @@ SHOTS = [
 RULES = (
     "Rules: every person appears only once, no duplicates, no twins, no extra people. "
     "Natural human anatomy, two hands with five fingers, true to life scale between people and objects. "
-    "Phones, screens and papers are seen from the back or edge on and held the right way round. "
+    # Never name an object you do not want: "phones held the right way round" made the video model add phones.
+    "Hands stay relaxed and empty unless the moment needs them. "
     "No text, no logos, no watermarks. No morphing faces, no melting objects."
 )
 
@@ -48,16 +49,17 @@ PLACE_TEXT = (
     "natural light, real textures, lived in, no text, no logos, no watermarks. "
     "The place where this happens (show only the place, no person):"
 )
-# The situation menu. One pick sets both the place (FLUX 2) and what happens (hero frame and shots).
+# The situation menu, written as "place | moment". FLUX 2 only ever sees the place (if it sees the moment it
+# draws a stranger into the room); the hero frame gets the moment; the shots get both.
 # Simple lifestyle moments with the face visible work best; prop actions (pouring coffee) and
 # facing away (looking out a window) go wrong.
 SITUATIONS = [
-    "Relaxing on a green velvet couch in a sunny East Village apartment with a red brick wall, smiling to themselves",
-    "Walking slowly down a leafy Brooklyn street at golden hour past brownstones, glancing around",
-    "Sitting on a park bench in Central Park in autumn, watching people go by, thoughtful",
-    "Leaning on a rooftop railing in Manhattan at sunset, the wind in their hair, calm",
-    "Sitting in a booth in a neon lit Hong Kong diner at night, laughing softly",
-    "Sitting by a rainy cafe window in Paris, watching the street with a soft smile",
+    "A sunny East Village walk up apartment with a red brick wall and a green velvet couch | relaxing on the couch, smiling to themselves",
+    "A leafy Brooklyn street of brownstones at golden hour | walking slowly down the sidewalk, glancing around",
+    "A path through Central Park in autumn with old benches | sitting on a bench, watching people go by, thoughtful",
+    "A Manhattan rooftop at sunset with the skyline behind | leaning on the railing, the wind in their hair, calm",
+    "A neon lit Hong Kong diner at night with mint green booths | sitting in a booth, laughing softly",
+    "A Paris cafe by a rainy window | sitting at a table by the window, watching the street with a soft smile",
 ]
 
 # Edits the person's own photo (image 1) into the place (image 2). The model holds on to image 1 far more
@@ -156,7 +158,17 @@ def build():
                          inputs=[widget_input("string_a", "STRING"), widget_input("string_b", "STRING"),
                                  widget_input("delimiter", "STRING")],
                          outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 200], title="PLACE PROMPT")
-    g.link(situation, 0, place_prompt, "string_b")
+    def regex(title, pattern, y):
+        node = g.new("RegexReplace", [-900, y], ["", pattern, ""],
+                     inputs=[widget_input("string", "STRING"), widget_input("regex_pattern", "STRING"),
+                             widget_input("replace", "STRING")],
+                     outputs=[{"name": "STRING", "type": "STRING"}], size=[320, 160], title=title)
+        g.link(situation, 0, node, "string")
+        return node
+
+    just_place = regex("JUST THE PLACE", r"\s*\|.*$", 500)
+    just_moment = regex("JUST THE MOMENT", r"^.*?\|\s*", 800)
+    g.link(just_place, 0, place_prompt, "string_b")
     where = g.add(flux_inst, [-450, 420])
     where["title"] = "MAKE THE PLACE"
     where["widgets_values"] = ["", 1344, 768, "flux2_dev_fp8mixed.safetensors", "mistral_3_small_flux2_bf16.safetensors",
@@ -170,7 +182,7 @@ def build():
                         inputs=[widget_input("string_a", "STRING"), widget_input("string_b", "STRING"),
                                 widget_input("delimiter", "STRING")],
                         outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 200], title="HERO PROMPT")
-    g.link(situation, 0, hero_prompt, "string_b")
+    g.link(just_moment, 0, hero_prompt, "string_b")
     hero = g.add(qwen_inst, [880, -900])
     hero["title"] = "MAKE THE HERO FRAME"
     hero["widgets_values"][6] = HERO_LORA
