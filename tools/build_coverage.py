@@ -34,10 +34,11 @@ RULES = (
     "No text, no logos, no watermarks. No morphing faces, no melting objects."
 )
 
-# The operator. Locked off AI shots read as AI, so every shot gets a human on the camera.
+# The operator. Locked off AI shots read as AI, so every shot gets a human on the camera, shooting on an iPhone.
 CAMERA_OP = (
-    "Shot handheld by a camera operator: gentle breathing float, small drifting reframes, "
-    "natural motion blur on movement, subtle focus breathing. Real 35mm film texture, natural light. "
+    "Shot on an iPhone held in someone's hands: gentle breathing float, small drifting reframes, "
+    "natural motion blur on movement, the focus softly shifting between subject and background, "
+    "auto exposure gently breathing. Real iPhone video look, natural light, no cinematic grade. "
     "The camera holds this framing, one single continuous take, no big zooms, no pull backs, no cuts to another place. "
     "Same characters, same wardrobe, same location and same view out of the windows as the first frame. " + RULES
 )
@@ -71,11 +72,13 @@ HERO_TEXT = (
     "The face is clearly visible, turned about three quarters toward the camera, not looking into the lens. "
     "Real candid photo, not posed. " + RULES + " In this moment:"
 )
+ANGLE_UNET = "qwen_image_edit_2511_bf16.safetensors"
 HERO_LORA = "Qwen-Image-Edit-2511_Consistency.safetensors"
 
 # Tells the angle model to keep the hero's people and check the place against WHERE.
 REFERENCE_TEXT = (
-    "Keep the people in image 1 exactly the same (same faces, hair, wardrobe, same number of people). "
+    "Keep the people in image 1 exactly the same: the same face shape, skin tone, eyes, hair and headwear, "
+    "the same wardrobe, the same number of people. "
     "Keep the place exactly as in image 2 (same walls, furniture, windows, street). Keep the light of image 1. " + RULES
 )
 
@@ -226,6 +229,9 @@ def build():
 
         angle = g.add(qwen_inst, [880, y])
         angle["title"] = s["name"] + " frame"
+        # Full size weights hold faces better across new camera positions than the int8 file.
+        angle["widgets_values"][2] = ANGLE_UNET
+        angle["widgets_values_named"]["unet_name"] = ANGLE_UNET
         angle["widgets_values"][-1] = 1000 + k
         angle["widgets_values_named"]["seed"] = 1000 + k
         angle_prompt = g.new("StringConcatenate", [880, y + 700], ["", REFERENCE_TEXT, " "],
