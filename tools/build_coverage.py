@@ -192,7 +192,14 @@ def build():
     hero_cam["widgets_values"] = [HERO_CAMERA["h"], HERO_CAMERA["v"], HERO_CAMERA["zoom"], "camera"]
     hero_cam["widgets_values_named"] = {"horizontal_angle": HERO_CAMERA["h"], "vertical_angle": HERO_CAMERA["v"],
                                         "zoom": HERO_CAMERA["zoom"], "view": "camera"}
-    g.link(who, 0, hero_cam, "image")
+    # The edit keeps image 1's shape, so the person's photo is padded to widescreen first.
+    widescreen = g.new("ResizeAndPadImage", [-450, -1300], [1344, 768, "white", "area"],
+                       inputs=[{"name": "image", "type": "IMAGE"}, widget_input("target_width", "INT"),
+                               widget_input("target_height", "INT"), widget_input("padding_color", "COMBO"),
+                               widget_input("interpolation", "COMBO")],
+                       outputs=[{"name": "IMAGE", "type": "IMAGE"}], size=[320, 160], title="WIDESCREEN THE PHOTO")
+    g.link(who, 0, widescreen, "image")
+    g.link(widescreen, 0, hero_cam, "image")
     hero_full = g.new("StringConcatenate", [420, -1300], ["", "", " "],
                       inputs=[widget_input("string_a", "STRING"), widget_input("string_b", "STRING"),
                               widget_input("delimiter", "STRING")],
@@ -203,7 +210,7 @@ def build():
     hero["title"] = "MAKE THE HERO FRAME"
     hero["widgets_values"][-1] = 777
     hero["widgets_values_named"].update({"seed": 777})
-    g.link(who, 0, hero, "image")
+    g.link(widescreen, 0, hero, "image")
     g.link(where, 0, hero, "image2")
     hero["widgets_values"][2] = ANGLE_UNET
     hero["widgets_values_named"]["unet_name"] = ANGLE_UNET
@@ -240,6 +247,9 @@ def build():
         # Full size weights hold faces better across new camera positions than the int8 file.
         angle["widgets_values"][2] = ANGLE_UNET
         angle["widgets_values_named"]["unet_name"] = ANGLE_UNET
+        # Speed mode (4 step Lightning) smooths skin into plastic; full steps keep real texture.
+        angle["widgets_values"][1] = False
+        angle["widgets_values_named"]["value"] = False
         angle["widgets_values"][-1] = 1000 + k
         angle["widgets_values_named"]["seed"] = 1000 + k
         angle_prompt = g.new("StringConcatenate", [880, y + 700], ["", REFERENCE_TEXT, " "],
