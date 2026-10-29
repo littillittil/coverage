@@ -74,6 +74,18 @@ HERO_TEXT = (
     "naturally if only the head and shoulders are visible. The face is clearly visible, turned about three "
     "quarters toward the camera, not looking into the lens. Real candid photo, not posed. " + RULES + " In this moment:"
 )
+# Step 0: most people upload a selfie, not a full body photo. This step shows the same person head to toe
+# against a plain wall, keeping their face and top and completing the outfit, so every later step has a
+# whole person to work with (head only photos gave near identical, cropped angles).
+FULL_BODY_TEXT = (
+    "Show this exact same person from head to toe, standing straight against a plain white wall, the whole body "
+    "in the frame with space above the head and below the shoes, arms relaxed at their sides, hands empty, facing "
+    "the camera. Keep exactly the same face, face shape, skin tone, eyes, hair, facial hair and headwear, and the "
+    "same top they are wearing. Complete the outfit with trousers and shoes that naturally match their style. "
+    "Straight out of camera iPhone photo, soft natural window light, real skin texture. Only one person."
+)
+FULL_BODY_LORA = "Qwen-Image-Edit-2511_Consistency.safetensors"
+
 ANGLE_UNET = "qwen_image_edit_2511_bf16.safetensors"
 
 # Tells the angle model to keep the hero's people and check the place against WHERE.
@@ -198,7 +210,17 @@ def build():
                                widget_input("target_height", "INT"), widget_input("padding_color", "COMBO"),
                                widget_input("interpolation", "COMBO")],
                        outputs=[{"name": "IMAGE", "type": "IMAGE"}], size=[320, 160], title="WIDESCREEN THE PHOTO")
-    g.link(who, 0, widescreen, "image")
+    full_body = g.add(qwen_inst, [-900, -1700])
+    full_body["title"] = "MAKE THE FULL BODY"
+    wv = full_body["widgets_values"]
+    wv[0], wv[1], wv[2], wv[6], wv[-1] = FULL_BODY_TEXT, False, ANGLE_UNET, FULL_BODY_LORA, 555
+    full_body["widgets_values_named"].update({"prompt": FULL_BODY_TEXT, "value": False, "unet_name": ANGLE_UNET,
+                                              "lora_name_1": FULL_BODY_LORA, "seed": 555})
+    g.link(who, 0, full_body, "image")
+    full_body_still = g.new("SaveImage", [-450, -1700], ["coverage/stills/00_FULL_BODY"],
+                            inputs=[{"name": "images", "type": "IMAGE"}], size=[340, 300], title="FULL BODY")
+    g.link(full_body, 0, full_body_still, "images")
+    g.link(full_body, 0, widescreen, "image")
     g.link(widescreen, 0, hero_cam, "image")
     hero_full = g.new("StringConcatenate", [420, -1300], ["", "", " "],
                       inputs=[widget_input("string_a", "STRING"), widget_input("string_b", "STRING"),
@@ -305,7 +327,7 @@ def build():
             "linearMode": True,
             "linearData": {
                 "inputs": [[who["id"], "image"], [situation["id"], "choice"]],
-                "outputs": [scene_out["id"], place_still["id"], hero_still["id"]] + shot_saves,
+                "outputs": [scene_out["id"], full_body_still["id"], place_still["id"], hero_still["id"]] + shot_saves,
             },
             "ds": {"scale": 0.45, "offset": [100, 100]},
         },
