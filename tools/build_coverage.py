@@ -63,17 +63,18 @@ SITUATIONS = [
     "A Paris cafe by a rainy window | sitting at a table by the window, watching the street with a soft smile",
 ]
 
-# Edits the person's own photo (image 1) into the place (image 2). The model holds on to image 1 far more
-# than image 2, so the person must be image 1 or their face gets lost. The situation is added after it.
+# The hero frame: the person's photo (image 1) seen from further away, inside the empty place FLUX built
+# (image 2). It runs through the multiple angles LoRA with a pulled back CameraAngle. That pull back is
+# what moves a close up selfie into a room; a plain edit keeps the selfie's own wall and framing.
+HERO_CAMERA = {"h": 15, "v": 5, "zoom": 2.5}
 HERO_TEXT = (
-    "Keep this exact person from image 1: the same face, hairstyle, hair color, skin tone, body and clothes. "
-    "Replace the white wall and everything around them with the place from image 2, filling the whole frame "
-    "edge to edge, naturally lit by the light of that place. Change only their pose to fit the moment. "
-    "The face is clearly visible, turned about three quarters toward the camera, not looking into the lens. "
-    "Real candid photo, not posed. " + RULES + " In this moment:"
+    "The same person from image 1, now seen from further away, inside the place from image 2. The whole "
+    "background is the place from image 2, nothing of the plain wall in image 1 remains. Keep exactly the same "
+    "face shape, skin tone, eyes, hair, facial hair and headwear, the same clothes; continue the clothes "
+    "naturally if only the head and shoulders are visible. The face is clearly visible, turned about three "
+    "quarters toward the camera, not looking into the lens. Real candid photo, not posed. " + RULES + " In this moment:"
 )
 ANGLE_UNET = "qwen_image_edit_2511_bf16.safetensors"
-HERO_LORA = "Qwen-Image-Edit-2511_Consistency.safetensors"
 
 # Tells the angle model to keep the hero's people and check the place against WHERE.
 REFERENCE_TEXT = (
@@ -186,20 +187,27 @@ def build():
                                 widget_input("delimiter", "STRING")],
                         outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 200], title="HERO PROMPT")
     g.link(just_moment, 0, hero_prompt, "string_b")
+    hero_cam = g.add(cam_t, [0, -1300])
+    hero_cam["title"] = "HERO CAMERA"
+    hero_cam["widgets_values"] = [HERO_CAMERA["h"], HERO_CAMERA["v"], HERO_CAMERA["zoom"], "camera"]
+    hero_cam["widgets_values_named"] = {"horizontal_angle": HERO_CAMERA["h"], "vertical_angle": HERO_CAMERA["v"],
+                                        "zoom": HERO_CAMERA["zoom"], "view": "camera"}
+    g.link(who, 0, hero_cam, "image")
+    hero_full = g.new("StringConcatenate", [420, -1300], ["", "", " "],
+                      inputs=[widget_input("string_a", "STRING"), widget_input("string_b", "STRING"),
+                              widget_input("delimiter", "STRING")],
+                      outputs=[{"name": "STRING", "type": "STRING"}], size=[340, 160], title="HERO CAMERA + PROMPT")
+    g.link(hero_cam, 1, hero_full, "string_a")
+    g.link(hero_prompt, 0, hero_full, "string_b")
     hero = g.add(qwen_inst, [880, -900])
     hero["title"] = "MAKE THE HERO FRAME"
-    hero["widgets_values"][6] = HERO_LORA
     hero["widgets_values"][-1] = 777
-    hero["widgets_values_named"].update({"lora_name_1": HERO_LORA, "seed": 777})
-    widescreen = g.new("ResizeAndPadImage", [420, -1300], [1344, 768, "white", "area"],
-                       inputs=[{"name": "image", "type": "IMAGE"}, widget_input("target_width", "INT"),
-                               widget_input("target_height", "INT"), widget_input("padding_color", "COMBO"),
-                               widget_input("interpolation", "COMBO")],
-                       outputs=[{"name": "IMAGE", "type": "IMAGE"}], size=[320, 160], title="WIDESCREEN THE PHOTO")
-    g.link(who, 0, widescreen, "image")
-    g.link(widescreen, 0, hero, "image")
+    hero["widgets_values_named"].update({"seed": 777})
+    g.link(who, 0, hero, "image")
     g.link(where, 0, hero, "image2")
-    g.link(hero_prompt, 0, hero, "prompt")
+    hero["widgets_values"][2] = ANGLE_UNET
+    hero["widgets_values_named"]["unet_name"] = ANGLE_UNET
+    g.link(hero_full, 0, hero, "prompt")
     hero_still = g.new("SaveImage", [1320, -900], ["coverage/stills/00_HERO"],
                        inputs=[{"name": "images", "type": "IMAGE"}], size=[340, 300], title="HERO FRAME")
     g.link(hero, 0, hero_still, "images")
