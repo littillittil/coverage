@@ -21,7 +21,7 @@ SHOTS = [
     {"name": "02 MEDIUM", "h": 340, "v": 5, "zoom": 4.5, "text": "Medium shot."},
     {"name": "03 CLOSE UP", "h": 5, "v": 0, "zoom": 10, "text": "Close up shot."},
     {"name": "04 PROFILE", "h": 60, "v": 0, "zoom": 6, "text": "Side profile medium shot."},
-    {"name": "05 LOW ANGLE", "h": 330, "v": -25, "zoom": 6, "text": "Low angle hero shot."},
+    {"name": "05 LOW ANGLE", "h": 330, "v": -25, "zoom": 6, "text": "Low angle hero shot, the camera close to the ground looking up at them against the sky."},
 ]
 
 # The rule book: what must never happen. These models run at CFG 1 (fast distilled), where a negative
