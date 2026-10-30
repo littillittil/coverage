@@ -148,13 +148,12 @@
   .demo:hover { box-shadow: 0 0 34px rgba(255,156,249,.55); }
   @keyframes glow { 50% { box-shadow: 0 0 34px rgba(100,181,246,.5); } }
   .qr, .demo { white-space: nowrap; flex: 0 0 auto; }
-  .qr { display: inline-flex; align-items: center; gap: 9px; padding: 5px 14px 5px 5px; border-radius: 12px; background: var(--panel2); border: 1px solid var(--line);
-        cursor: pointer; color: var(--text); font: inherit; font-size: 13px; font-weight: 700; }
-  .qr img { width: 38px; height: 38px; border-radius: 6px; background: #fff; display: block; }
+  .qr { display: inline-flex; padding: 0; border-radius: 12px; background: #fff; border: 0; cursor: pointer; overflow: hidden; }
+  .qr img { width: 92px; height: 92px; display: block; }
   .qr:hover { border-color: var(--faint); }
   .qrpop { display: none; position: fixed; inset: 0; z-index: 21; background: rgba(8,6,10,.92); align-items: center; justify-content: center; flex-direction: column; gap: 18px; cursor: pointer; }
   .qrpop.show { display: flex; animation: rise .3s both; }
-  .qrpop img { width: min(70vh, 80vw); height: min(70vh, 80vw); background: #fff; border-radius: 18px; }
+  .qrpop img { width: min(86vh, 86vw); height: min(86vh, 86vw); background: #fff; border-radius: 18px; }
   .qrpop span { font-size: 28px; font-weight: 800; letter-spacing: .04em; }
   .demopop { display: none; position: fixed; inset: 0; z-index: 20; background: rgba(8,6,10,.9); align-items: center; justify-content: center; padding: 30px; }
   .demopop.show { display: flex; animation: rise .3s both; }
@@ -203,7 +202,7 @@
   </div>
   <div class="head"><h1>COVERAGE</h1><span>one photo in, the whole scene out</span>
     <button class="demo" id="demoBtn"><span class="play"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 1l7 4-7 4z" fill="#171a21"/></svg></span>Watch demo</button>
-    <button class="qr" id="qrBtn" title="littil.ai"><img src="qr_littil_ai.png" alt="QR code for littil.ai">littil.ai</button>
+    <button class="qr" id="qrBtn" title="littil.ai"><img src="qr_littil_ai.png" alt="QR code for littil.ai"></button>
     <div class="right"><div class="status" id="status">Add your photo and pick a place.</div><span class="reopen" id="reopen">Watch the scene</span>
       <button class="run" id="run"><span class="rec"></span><span id="runLabel">Run</span></button></div></div>
 
@@ -259,7 +258,7 @@
 </div>
 <div class="foot"><span class="logo">C</span>made in ComfyUI · every model open weights</div>
 
-<div class="qrpop" id="qrPop"><img src="qr_littil_ai.png" alt="QR code for littil.ai"><span>littil.ai</span></div>
+<div class="qrpop" id="qrPop"><img src="qr_littil_ai.png" alt="QR code for littil.ai"></div>
 <div class="demopop" id="demoPop"><div class="box"><button class="x" id="demoClose">×</button>
   <video id="demoVideo" src="demo.mp4" preload="auto" playsinline controls></video></div></div>
 <div class="scene" id="scene"><div class="box">
