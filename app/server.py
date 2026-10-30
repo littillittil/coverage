@@ -136,7 +136,6 @@ def save_data_url(data_url, path):
 
 def retry(fn, r, tries=4):
     """Upload and submit again if the network drops; the idempotency key stops a double job."""
-    from comfy_sdk.exceptions import ComfyError if False else None
     for n in range(tries):
         try:
             return fn()
