@@ -180,6 +180,15 @@
   .demopop .box { width: min(1280px, 100%); position: relative; }
   .demopop video { width: 100%; max-height: 84vh; border-radius: 14px; display: block; background: #000; box-shadow: 0 30px 90px rgba(0,0,0,.6); }
   .demopop .x { position: absolute; top: -40px; right: 0; background: none; border: 0; color: var(--dim); font-size: 28px; cursor: pointer; }
+  .mini { display: none; position: fixed; right: 20px; bottom: 20px; z-index: 8; width: 340px; background: var(--panel); border: 1px solid var(--line);
+          border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.6); animation: rise .35s both; }
+  .mini.show { display: block; }
+  .mini video { width: 100%; display: block; background: #000; cursor: pointer; aspect-ratio: 16/9; object-fit: cover; }
+  .mini .bar2 { display: flex; align-items: center; gap: 6px; padding: 8px 10px; }
+  .mini .bar2 b { flex: 1; font-size: 12px; font-weight: 800; letter-spacing: .1em; color: var(--dim); }
+  .mini .bar2 a, .mini .bar2 button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel2); color: var(--text);
+          display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; font-size: 15px; }
+  .mini .bar2 a:hover, .mini .bar2 button:hover { border-color: var(--accent); }
   .reopen { display: none; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; }
   .reopen.show { display: inline; }
   .scene .top { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px; }
@@ -282,6 +291,8 @@
 <div class="qrpop" id="qrPop"><img src="qr_littil_ai.png" alt="QR code for littil.ai"></div>
 <div class="demopop" id="demoPop"><div class="box"><button class="x" id="demoClose">×</button>
   <video id="demoVideo" src="demo.mp4" preload="auto" playsinline controls></video></div></div>
+<div class="mini" id="mini"><video id="miniVideo" muted loop playsinline title="Watch big"></video>
+  <div class="bar2"><b>YOUR SCENE</b><button id="miniBig" title="Watch big">⤢</button><a id="miniDl" download="coverage_scene.mp4" title="Download">⬇</a><button id="miniX" title="Hide">×</button></div></div>
 <div class="scene" id="scene"><div class="box">
   <div class="top"><a id="dl" download="coverage_scene.mp4">Download</a><button class="x" id="closeScene">×</button></div>
   <video id="sceneVideo" controls playsinline></video></div></div>
@@ -509,8 +520,19 @@ function drawFrames() {
   }).join("");
 }
 
-$("closeScene").onclick = () => { $("scene").classList.remove("show"); $("sceneVideo").pause(); };
-$("reopen").onclick = () => { $("scene").classList.add("show"); $("sceneVideo").play().catch(() => {}); };
+/* the scene: big pop up, and a mini player in the corner when it is closed */
+function bigScene() { $("mini").classList.remove("show"); $("miniVideo").pause(); $("scene").classList.add("show"); $("sceneVideo").play().catch(() => {}); }
+function miniScene() {
+  $("scene").classList.remove("show"); $("sceneVideo").pause();
+  const src = $("sceneVideo").getAttribute("src"); if (!src) return;
+  if ($("miniVideo").getAttribute("src") !== src) $("miniVideo").src = src;
+  $("miniDl").href = src; $("mini").classList.add("show"); $("miniVideo").play().catch(() => {});
+}
+$("closeScene").onclick = miniScene;
+$("scene").onclick = e => { if (e.target === $("scene")) miniScene(); };
+$("reopen").onclick = bigScene;
+$("miniVideo").onclick = bigScene; $("miniBig").onclick = bigScene;
+$("miniX").onclick = () => { $("mini").classList.remove("show"); $("miniVideo").pause(); };
 
 /* watch demo: pops up with sound, closes itself at the end */
 function closeDemo() { $("demoPop").classList.remove("show"); $("demoVideo").pause(); }
@@ -520,7 +542,7 @@ $("qrBtn").onclick = () => $("qrPop").classList.add("show");
 $("qrPop").onclick = () => $("qrPop").classList.remove("show");
 $("demoClose").onclick = closeDemo;
 $("demoPop").onclick = e => { if (e.target === $("demoPop")) closeDemo(); };
-addEventListener("keydown", e => { if (e.key === "Escape") { closeDemo(); $("qrPop").classList.remove("show"); $("scene").classList.remove("show"); } });
+addEventListener("keydown", e => { if (e.key === "Escape") { closeDemo(); $("qrPop").classList.remove("show"); if ($("scene").classList.contains("show")) miniScene(); } });
 
 function readFile(f, cb) { const r = new FileReader(); r.onload = () => cb(r.result); r.readAsDataURL(f); }
 
@@ -584,7 +606,7 @@ $("run").onclick = async () => {
   if (current) { stopRun(); return; }
   if (!canRun()) { $("status").textContent = !state.selfie ? "Add your photo first." : !state.place ? "Pick a place first." : "Pick five shots."; return; }
   $("run").classList.add("rolling"); $("runLabel").textContent = "Stop"; current = "starting";
-  drawFrames(); drawMap(); $("scene").classList.remove("show"); $("reopen").classList.remove("show");
+  drawFrames(); drawMap(); $("scene").classList.remove("show"); $("reopen").classList.remove("show"); $("mini").classList.remove("show"); $("miniVideo").pause();
   setRolling(true);
   document.querySelectorAll(".frame").forEach(f => f.classList.add("rolling"));
   const body = { selfie: state.selfie, extra: state.extra, action: state.action, shots: state.shots };
