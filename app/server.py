@@ -134,6 +134,19 @@ def save_data_url(data_url, path):
     path.write_bytes(base64.b64decode(data_url.split(",", 1)[1]))
 
 
+def retry(fn, r, tries=4):
+    """Upload and submit again if the network drops; the idempotency key stops a double job."""
+    from comfy_sdk.exceptions import ComfyError if False else None
+    for n in range(tries):
+        try:
+            return fn()
+        except Exception as e:
+            if "IdempotencyKeyReuse" in e.__class__.__name__ or n == tries - 1:
+                raise
+            r["note"] = f"network hiccup, retrying upload ({n + 1})"
+            time.sleep(3 * (n + 1))
+
+
 def run_job(rid, body):
     r = runs[rid]
     folder = RUNS / rid
@@ -155,24 +168,37 @@ def run_job(rid, body):
 
         graph = build(body.get("place_id"), body.get("place_text"), bool(place_photo), body.get("action"), body.get("shots"))
         add_extra_photos(graph, len(extras))
-        wf = client.workflows.from_json(graph)
-        wf.set_input(WHO, "image", client.assets.from_file(selfie))
-        for i, f in enumerate(extras):
-            wf.set_input(f"91{i}", "image", client.assets.from_file(f))
-        if place_photo:
-            wf.set_input("900", "image", client.assets.from_file(place_photo))
-        job = client.submit(wf)
+
+        def submit():
+            wf = client.workflows.from_json(graph)
+            wf.set_input(WHO, "image", client.assets.from_file(selfie))
+            for i, f in enumerate(extras):
+                wf.set_input(f"91{i}", "image", client.assets.from_file(f))
+            if place_photo:
+                wf.set_input("900", "image", client.assets.from_file(place_photo))
+            return client.submit(wf, idempotency_key=f"coverage-{rid}")
+        job = retry(submit, r)
         r.update(status="running", job=job.id)
 
+        misses = 0
         while True:
-            job.refresh()
-            for out in job.outputs:
-                key = OUTPUTS.get(out.node_id)
-                if key and key not in r["files"]:
-                    ext = Path(out.name).suffix or (".mp4" if "video" in out.content_type else ".png")
-                    dest = folder / f"{key}{ext}"
-                    out.to_file(dest)
-                    r["files"][key] = f"/runs/{rid}/{dest.name}"
+            try:
+                job.refresh()
+                for out in job.outputs:
+                    key = OUTPUTS.get(out.node_id)
+                    if key and key not in r["files"]:
+                        ext = Path(out.name).suffix or (".mp4" if "video" in out.content_type else ".png")
+                        dest = folder / f"{key}{ext}"
+                        out.to_file(dest)
+                        r["files"][key] = f"/runs/{rid}/{dest.name}"
+                misses = 0
+            except Exception as e:      # a Wi-Fi blip: keep the job, try again
+                misses += 1
+                if misses > 30:
+                    raise
+                r["note"] = f"network hiccup, retrying ({e.__class__.__name__})"
+                time.sleep(5)
+                continue
             if job.status in ("succeeded", "failed", "cancelled", "canceled"):
                 r["status"] = "done" if job.status == "succeeded" else "failed"
                 if job.status != "succeeded":
@@ -198,7 +224,48 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def send_video(self, f):
+        """Serve an mp4 with byte ranges, so the browser streams and seeks instead of stalling."""
+        size = f.stat().st_size
+        start, end = 0, size - 1
+        m = re.match(r"bytes=(\d*)-(\d*)", self.headers.get("Range", ""))
+        if m:
+            if m.group(1):
+                start = int(m.group(1))
+                end = int(m.group(2)) if m.group(2) else size - 1
+            else:
+                start = size - int(m.group(2))
+            end = min(end, size - 1)
+            self.send_response(206)
+            self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
+        else:
+            self.send_response(200)
+        self.send_header("Content-Type", "video/mp4")
+        self.send_header("Accept-Ranges", "bytes")
+        self.send_header("Content-Length", str(end - start + 1))
+        self.end_headers()
+        try:
+            with open(f, "rb") as fh:
+                fh.seek(start)
+                left = end - start + 1
+                while left > 0:
+                    chunk = fh.read(min(1 << 20, left))
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+                    left -= len(chunk)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
     def do_GET(self):
+        path = self.path.split("?")[0]
+        if path.endswith(".mp4"):
+            m = re.match(r"^/runs/([\w-]+)/([\w.]+)$", path)
+            f = (RUNS / m.group(1) / m.group(2)) if m else (APP / path.lstrip("/"))
+            if f.resolve().is_relative_to(APP.resolve()) or f.resolve().is_relative_to(RUNS.resolve()):
+                if f.exists():
+                    return self.send_video(f)
+            return self.send_error(404)
         m = re.match(r"^/api/run/([\w-]+)$", self.path)
         if m:
             r = runs.get(m.group(1))
