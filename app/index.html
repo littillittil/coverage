@@ -130,11 +130,22 @@
 
   .row { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; gap: 20px; }
   .status { color: var(--dim); font-size: 14px; min-height: 20px; }
-  .run { position: relative; background: #3a4f7a; color: var(--text); border: 0; border-radius: 999px; padding: 13px 48px; font: inherit; font-size: 17px; font-weight: 800; letter-spacing: .02em; cursor: pointer; transition: background .2s, transform .1s, box-shadow .2s; }
-  .run.ready { background: var(--accent); color: #0e1320; box-shadow: 0 10px 40px rgba(96,165,250,.35); }
-  .run:active { transform: scale(.97); }
-  .run:disabled { cursor: default; opacity: .75; }
-  .run .rec { display: none; width: 10px; height: 10px; border-radius: 50%; background: var(--tally); margin-right: 10px; vertical-align: middle; animation: blink 1s infinite; }
+  .run { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 190px; border: 0; border-radius: 16px; padding: 15px 40px;
+         font: inherit; font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; color: #0b1020;
+         background: linear-gradient(180deg, #a9d1ff 0%, #60a5fa 45%, #3b82f6 100%);
+         box-shadow: 0 6px 0 #1d4ed8, 0 12px 26px rgba(59,130,246,.45), inset 0 2px 0 rgba(255,255,255,.65), inset 0 -3px 0 rgba(0,0,0,.12);
+         transform: translateY(-3px); transition: transform .08s, box-shadow .08s, filter .2s; text-shadow: 0 1px 0 rgba(255,255,255,.4); }
+  .run:not(.ready):not(.rolling) { filter: saturate(.35) brightness(.8); }
+  .run.ready { animation: ready 2.2s ease-in-out infinite; }
+  @keyframes ready { 50% { box-shadow: 0 6px 0 #1d4ed8, 0 12px 40px rgba(96,165,250,.75), inset 0 2px 0 rgba(255,255,255,.65), inset 0 -3px 0 rgba(0,0,0,.12); } }
+  .run:active { transform: translateY(3px); box-shadow: 0 0 0 #1d4ed8, 0 4px 10px rgba(59,130,246,.35), inset 0 2px 0 rgba(255,255,255,.5); }
+  .run.rolling { color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.3); background: linear-gradient(180deg, #ff8a8a 0%, #ef4444 50%, #c81e1e 100%);
+                 box-shadow: 0 6px 0 #8f1414, 0 12px 26px rgba(239,68,68,.45), inset 0 2px 0 rgba(255,255,255,.45), inset 0 -3px 0 rgba(0,0,0,.15); }
+  .run.rolling { animation: none; }
+  .run.rolling:active { box-shadow: 0 0 0 #8f1414, 0 4px 10px rgba(239,68,68,.35); }
+  .run:disabled { cursor: default; }
+  .head .run span, .head .demo span { color: inherit; font-size: inherit; }
+  .run .rec { display: none; width: 12px; height: 12px; border-radius: 3px; background: #fff; }
   .run.rolling .rec { display: inline-block; }
 
   .scene { display: none; position: fixed; inset: 0; z-index: 9; background: rgba(8,6,10,.85); align-items: center; justify-content: center; padding: 30px; }
@@ -568,9 +579,11 @@ function ready() {
 }
 
 /* run */
+let current = null;
 $("run").onclick = async () => {
+  if (current) { stopRun(); return; }
   if (!canRun()) { $("status").textContent = !state.selfie ? "Add your photo first." : !state.place ? "Pick a place first." : "Pick five shots."; return; }
-  $("run").disabled = true; $("run").classList.add("rolling"); $("runLabel").textContent = "Rolling";
+  $("run").classList.add("rolling"); $("runLabel").textContent = "Stop"; current = "starting";
   drawFrames(); drawMap(); $("scene").classList.remove("show"); $("reopen").classList.remove("show");
   setRolling(true);
   document.querySelectorAll(".frame").forEach(f => f.classList.add("rolling"));
@@ -579,10 +592,20 @@ $("run").onclick = async () => {
   else body.place_id = state.place;
   const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => r.json()).catch(() => ({}));
   if (!r.id) { fail(r.error || "Could not start"); return; }
+  if (current === "stop") { current = r.id; stopRun(); return; }
+  current = r.id;
   poll(r.id, Date.now());
 };
 
+function stopRun() {
+  const id = current; current = null;
+  if (id && id !== "starting" && id !== "stop") fetch(`/api/run/${id}/cancel`, { method: "POST" }).catch(() => {});
+  if (id === "starting") current = "stop";
+  document.querySelectorAll(".frame").forEach(c => c.classList.remove("rolling")); setRolling(false);
+  $("status").textContent = "Stopped. Change anything and run again."; reset();
+}
 function poll(id, t0) {
+  if (current !== id) return;
   fetch(`/api/run/${id}`).then(r => r.json()).then(r => {
     const f = r.files || {}, mins = Math.floor((Date.now() - t0) / 60000);
     [0, 1, 2, 3, 4].forEach(i => {
@@ -605,16 +628,22 @@ function poll(id, t0) {
       $("scene").classList.remove("show"); $("reopen").classList.add("show");
       setTimeout(() => { $("scene").classList.add("show"); $("sceneVideo").play().catch(() => {}); }, 2300);
     }
-    if (r.status === "done") { $("status").textContent = `That's a wrap · ${mins} min`; reset(); return; }
+    if (current !== id) return;
+    if (r.status === "done") { $("status").textContent = `That's a wrap · ${mins} min`; current = null; reset(); return; }
+    if (r.status === "stopped") { current = null; reset(); return; }
     if (r.status === "failed") { fail(r.error); return; }
     setTimeout(() => poll(id, t0), 4000);
   }).catch(() => setTimeout(() => poll(id, t0), 6000));
 }
 function fail(msg) {
+  current = null;
   $("status").textContent = "Something broke: " + (msg || "unknown");
   document.querySelectorAll(".frame").forEach(c => c.classList.remove("rolling")); setRolling(false); reset();
 }
-function reset() { $("run").disabled = false; $("run").classList.remove("rolling"); $("runLabel").textContent = "Run"; }
+function reset() {
+  $("run").classList.remove("rolling");
+  $("runLabel").textContent = $("frames").querySelector("img, video") ? "Run again" : "Run";
+}
 </script>
 </body>
 </html>

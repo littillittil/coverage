@@ -55,6 +55,7 @@ def api_key():
 
 client = Comfy(api_key=api_key())
 runs = {}
+jobs = {}   # run id -> Comfy job handle, for Stop
 
 
 def qwen_place(graph, text):
@@ -177,7 +178,10 @@ def run_job(rid, body):
                 wf.set_input("900", "image", client.assets.from_file(place_photo))
             return client.submit(wf, idempotency_key=f"coverage-{rid}")
         job = retry(submit, r)
-        r.update(status="running", job=job.id)
+        jobs[rid] = job
+        if r.get("status") == "stopping":
+            job.cancel()
+        r.update(status="running", job=job.id) if r.get("status") != "stopping" else None
 
         misses = 0
         while True:
@@ -198,9 +202,11 @@ def run_job(rid, body):
                 r["note"] = f"network hiccup, retrying ({e.__class__.__name__})"
                 time.sleep(5)
                 continue
+            if r.get("status") == "stopped":
+                return
             if job.status in ("succeeded", "failed", "cancelled", "canceled"):
-                r["status"] = "done" if job.status == "succeeded" else "failed"
-                if job.status != "succeeded":
+                r["status"] = {"succeeded": "done", "failed": "failed"}.get(job.status, "stopped")
+                if job.status == "failed":
                     r["error"] = str(job.error)[:500]
                 return
             time.sleep(4)
@@ -286,6 +292,21 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self):
+        m = re.match(r"^/api/run/([\w-]+)/cancel$", self.path)
+        if m:
+            rid = m.group(1); r = runs.get(rid)
+            if not r:
+                return self.send_json({"error": "unknown run"}, 404)
+            job = jobs.get(rid)
+            if job:
+                try:
+                    job.cancel()
+                except Exception as e:
+                    r["note"] = f"cancel failed: {e}"[:200]
+                r["status"] = "stopped"
+            else:
+                r["status"] = "stopping"
+            return self.send_json({"id": rid, "status": r["status"]})
         if self.path != "/api/run":
             return self.send_error(404)
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
