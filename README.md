@@ -8,7 +8,7 @@
 
 On a film set, the director never shoots just one angle. The crew shoots *coverage*: a wide, a medium, a close up, a profile, a low angle. That is what lets an editor cut a scene.
 
-AI video gives you one shot at a time, and every new shot drifts: a new face, new light, a different room. Coverage fixes that. Give it one photo of a person (a selfie is enough), pick a place, pick what they are doing, choose five camera angles and press Run. It builds the place, puts the person in it, places five cameras around them, keeps every shot matched, gives each one a handheld camera operator, and cuts them into a scene.
+AI video gives you one shot at a time, and every new shot drifts: a new face, new light, a different room. Coverage fixes that. Give it one photo of a person (a selfie is enough), pick a place, choose five camera angles and press Run. It builds the place, puts the person in it, places five cameras around them, keeps every shot matched, gives each one a handheld camera operator, and cuts them into a scene.
 
 Built for the ComfyUI Open Source Higgsfield competition by a working cinematographer. **Every model is open weights. LTX is the video model.**
 
@@ -18,12 +18,11 @@ Built for the ComfyUI Open Source Higgsfield competition by a working cinematogr
 
 ## The app
 
-Four steps, no prompts to write:
+Three steps, no prompts to write:
 
 1. **Who**: drop in one photo, or tap one of four sample people to try it. Optional **+** adds up to two more photos of the same person for a closer likeness.
 2. **Where**: a library of 16 places (Rooftop NY, Neon Night, Club Hong Kong, Diner, Tokyo Alley...), or **Your Place**: upload a location photo or type a few words.
-3. **What**: one word chips (Chilling, Dancing, Laughing, Daydreaming...) or type your own.
-4. **How**: pick 5 of 15 shots (Wide, Close Up, Extreme Close Up, Profile, Low Angle, High Angle, Top Down, Drone, From Behind, Over Shoulder, Dutch Tilt, Macro, Hands, Cowboy). Each button shows how the shot frames you, like a storyboard.
+3. **How**: pick 5 of 15 shots (Wide, Close Up, Extreme Close Up, Profile, Low Angle, High Angle, Top Down, Drone, From Behind, Over Shoulder, Dutch Tilt, Macro, Hands, Cowboy). Each button shows how the shot frames you, like a storyboard.
 
 A **3D set** shows you in the middle and each camera where it really stands, at its real height, aimed at you. Drag to look around. When you press Run, every camera's tally light blinks red while it shoots and turns green when its shot lands. Shots fill a film strip as they arrive, then the clapper snaps and the scene plays.
 
@@ -72,7 +71,6 @@ Open [http://localhost:8800](http://localhost:8800). The server stays on your ma
 
 - `app/places.json`: the place library. Add a line and a picture in `app/places/`.
 - `app/shots.json`: the shot menu. `h` is the camera's position around the subject (0 front, 90 side), `v` its height (negative looks up), `zoom` from 0 wide to 10 close.
-- `app/actions.json`: the action words.
 - `tools/build_coverage.py`: the workflow itself, built from the official Comfy templates: the camera operator, the rule book, the light match. Rebuild with `python tools/build_coverage.py`.
 
 ## What's next
