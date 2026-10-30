@@ -20,7 +20,7 @@ Built for the ComfyUI Open Source Higgsfield competition by a working cinematogr
 
 Four steps, no prompts to write:
 
-1. **Who**: drop in one photo. Optional **+** adds up to two more photos of the same person for a closer likeness.
+1. **Who**: drop in one photo, or tap one of four sample people to try it. Optional **+** adds up to two more photos of the same person for a closer likeness.
 2. **Where**: a library of 16 places (Rooftop NY, Neon Night, Club Hong Kong, Diner, Tokyo Alley...), or **Your Place**: upload a location photo or type a few words.
 3. **What**: one word chips (Chilling, Dancing, Laughing, Daydreaming...) or type your own.
 4. **How**: pick 5 of 15 shots (Wide, Close Up, Extreme Close Up, Profile, Low Angle, High Angle, Top Down, Drone, From Behind, Over Shoulder, Dutch Tilt, Macro, Hands, Cowboy). Each button shows how the shot frames you, like a storyboard.

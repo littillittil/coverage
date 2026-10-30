@@ -37,7 +37,7 @@
   .step.done .n { background: #81c784; }
   .step.done .n b { display: none; } .step .n i { display: none; font-style: normal; } .step.done .n i { display: inline; }
   .step .t { font-size: 17px; font-weight: 800; letter-spacing: .08em; color: var(--text); }
-  .step .h { font-size: 13px; color: var(--dim); font-weight: 500; }
+  .step .h { font-size: 13px; color: var(--dim); font-weight: 500; white-space: nowrap; }
   .section { margin-bottom: 14px; }
 
   /* photo */
@@ -151,6 +151,10 @@
   .qr, .demo { white-space: nowrap; flex: 0 0 auto; }
   .qr { display: inline-flex; padding: 0; border-radius: 12px; background: #fff; border: 0; cursor: pointer; overflow: hidden; }
   .qr img { width: 128px; height: 128px; display: block; }
+  .samples { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .samples small { color: var(--faint); font-size: 11px; font-weight: 600; margin-right: 2px; }
+  .samples img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: transform .15s, border-color .15s; }
+  .samples img:hover { transform: scale(1.12); border-color: var(--accent); }
   .brand { display: flex; align-items: center; gap: 14px; }
   .madeby { display: flex; flex-direction: column; line-height: 1.15; }
   .madeby small { color: var(--dim); font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
@@ -214,7 +218,7 @@
 
   <div class="main">
     <div>
-      <div class="step" id="s1"><span class="n"><b>1</b><i>✓</i></span><span class="t">WHO</span><span class="h">your photo</span></div>
+      <div class="step" id="s1"><span class="n"><b>1</b><i>✓</i></span><span class="t">WHO</span><span class="h">your photo</span><span class="samples" id="samples"><small>or try</small></span></div>
       <div class="whobox">
       <div class="drop" id="drop">
         <div class="hint">
@@ -525,6 +529,12 @@ function drawMore() {
 }
 $("extraFile").onchange = e => { const f = e.target.files[0]; if (f) readFile(f, url => { state.extra.push(url); drawMore(); }); e.target.value = ""; };
 drawMore();
+/* sample people: tap one to try the app without a selfie */
+["01_maya", "02_kenji", "03_priya", "04_mateo"].forEach(id => {
+  const img = document.createElement("img"); img.src = `samples/${id}_thumb.jpg`; img.alt = id.slice(3); img.title = id.slice(3)[0].toUpperCase() + id.slice(4);
+  img.onclick = () => fetch(`samples/${id}.jpg`).then(r => r.blob()).then(setSelfie);
+  $("samples").appendChild(img);
+});
 function setSelfie(f) { readFile(f, url => { state.selfie = url; drop.innerHTML = `<img src="${url}">`; drop.classList.add("filled"); ready(); }); }
 
 /* your own place */
