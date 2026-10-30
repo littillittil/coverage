@@ -2,7 +2,7 @@
 
 **One photo. Pick a place. Your own film crew shoots the whole scene.**
 
-▶ **[Watch the demo](https://github.com/littillittil/coverage/raw/main/app/demo.mp4)** (80 seconds)
+▶ **[Watch the demo](https://littillittil.github.io/coverage/app/demo.mp4)** (80 seconds)
 
 ![The Coverage app](docs/app.jpg)
 
