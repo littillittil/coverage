@@ -112,6 +112,24 @@ def build(place_id=None, place_text=None, have_place_photo=False, action=None, s
     return {k: v for k, v in g.items() if k in keep}
 
 
+FULL_BODY_EDIT = ["437:149", "437:151"]   # the full body step's two Qwen edit encoders
+EXTRA_TEXT = ("Every image shows the same single person from a different angle; use all of them to get their face, "
+              "skin tone, hair and body exactly right. ")
+
+
+def add_extra_photos(g, count):
+    """Extra photos of you go only into the full body step, as images 2 and 3. They sharpen the likeness there;
+    every later step works from that one full body picture, so no step ever sees two copies of you (that made clones)."""
+    for i in range(count):
+        load, scale = f"91{i}", f"92{i}"
+        g[load] = {"class_type": "LoadImage", "inputs": {"image": f"extra_{i + 1}.png"}}
+        g[scale] = {"class_type": "FluxKontextImageScale", "inputs": {"image": [load, 0]}}
+        for enc in FULL_BODY_EDIT:
+            g[enc]["inputs"][f"image{i + 2}"] = [scale, 0]
+    if count:
+        g[FULL_BODY_EDIT[1]]["inputs"]["prompt"] = EXTRA_TEXT + g[FULL_BODY_EDIT[1]]["inputs"]["prompt"]
+
+
 def save_data_url(data_url, path):
     path.write_bytes(base64.b64decode(data_url.split(",", 1)[1]))
 
@@ -129,9 +147,18 @@ def run_job(rid, body):
             place_photo = folder / "place.png"
             save_data_url(body["place_image"], place_photo)
 
-        wf = client.workflows.from_json(build(body.get("place_id"), body.get("place_text"), bool(place_photo),
-                                              body.get("action"), body.get("shots")))
+        extras = []
+        for i, url in enumerate((body.get("extra") or [])[:2]):
+            f = folder / f"extra_{i + 1}.png"
+            save_data_url(url, f)
+            extras.append(f)
+
+        graph = build(body.get("place_id"), body.get("place_text"), bool(place_photo), body.get("action"), body.get("shots"))
+        add_extra_photos(graph, len(extras))
+        wf = client.workflows.from_json(graph)
         wf.set_input(WHO, "image", client.assets.from_file(selfie))
+        for i, f in enumerate(extras):
+            wf.set_input(f"91{i}", "image", client.assets.from_file(f))
         if place_photo:
             wf.set_input("900", "image", client.assets.from_file(place_photo))
         job = client.submit(wf)

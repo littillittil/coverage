@@ -40,6 +40,17 @@
   .section { margin-bottom: 14px; }
 
   /* photo */
+  .whobox { position: relative; flex: 1 1 50%; min-height: 160px; display: flex; }
+  .whobox .drop { flex: 1; }
+  .more { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 8px; align-items: center; z-index: 2; }
+  .more .thumb { position: relative; width: 46px; height: 46px; border-radius: 10px; background: center/cover no-repeat; border: 2px solid var(--accent); box-shadow: 0 4px 14px rgba(0,0,0,.5); }
+  .more .thumb b { position: absolute; top: -7px; right: -7px; width: 18px; height: 18px; border-radius: 50%; background: var(--panel3); color: var(--text); font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .more .add { position: relative; width: 46px; height: 46px; border-radius: 10px; border: 2px dashed var(--faint); background: rgba(33,25,39,.85); color: var(--text);
+               font-size: 24px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color .15s; }
+  .more .add:hover { border-color: var(--accent); }
+  .more .add::after { content: attr(data-tip); position: absolute; left: 54px; white-space: nowrap; background: var(--panel3); color: var(--text); font-size: 12px; font-weight: 600;
+                      padding: 6px 10px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .15s; }
+  .more .add:hover::after { opacity: 1; }
   .drop { position: relative; flex: 1 1 50%; min-height: 160px; border-radius: 16px; border: 2px dashed var(--line); background: var(--panel2);
           display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; transition: border-color .2s; }
   .drop:hover, .drop.over { border-color: var(--accent); }
@@ -189,13 +200,17 @@
   <div class="main">
     <div>
       <div class="step" id="s1"><span class="n"><b>1</b><i>✓</i></span><span class="t">WHO</span><span class="h">your photo</span></div>
+      <div class="whobox">
       <div class="drop" id="drop">
         <div class="hint">
           <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
           <b>Your photo</b>a selfie is enough
         </div>
       </div>
+      <div class="more" id="more"></div>
+      </div>
       <input type="file" id="file" accept="image/*" hidden>
+      <input type="file" id="extraFile" accept="image/*" hidden>
       <div class="map" id="map"><span class="tip">DRAG TO LOOK AROUND THE SET</span></div>
     </div>
 
@@ -261,7 +276,7 @@ const COLORS = ["--c1", "--c2", "--c3", "--c4", "--c5"];
 const DEFAULT_SHOTS = ["wide", "medium", "close_up", "profile", "low_angle"];
 const $ = id => document.getElementById(id);
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-const state = { selfie: null, place: null, placeImage: null, action: null, shots: [...DEFAULT_SHOTS] };
+const state = { extra: [], selfie: null, place: null, placeImage: null, action: null, shots: [...DEFAULT_SHOTS] };
 let LIB = { places: [], shots: [], actions: [] }, wordPage = 0;
 
 /* framing icons: how much of the person each shot shows, like a storyboard */
@@ -483,6 +498,15 @@ $("file").onchange = e => e.target.files[0] && setSelfie(e.target.files[0]);
 drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
 drop.ondragleave = () => drop.classList.remove("over");
 drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); e.dataTransfer.files[0] && setSelfie(e.dataTransfer.files[0]); };
+/* more photos of you: up to two, they sharpen the likeness */
+function drawMore() {
+  $("more").innerHTML = state.extra.map((u, i) => `<div class="thumb" style="background-image:url('${u}')"><b data-i="${i}">×</b></div>`).join("")
+    + (state.extra.length < 2 ? `<div class="add" id="addMore" data-tip="Add more photos">+</div>` : "");
+  $("more").querySelectorAll(".thumb b").forEach(b => b.onclick = e => { e.stopPropagation(); state.extra.splice(+b.dataset.i, 1); drawMore(); });
+  const add = $("addMore"); if (add) add.onclick = e => { e.stopPropagation(); $("extraFile").click(); };
+}
+$("extraFile").onchange = e => { const f = e.target.files[0]; if (f) readFile(f, url => { state.extra.push(url); drawMore(); }); e.target.value = ""; };
+drawMore();
 function setSelfie(f) { readFile(f, url => { state.selfie = url; drop.innerHTML = `<img src="${url}">`; drop.classList.add("filled"); ready(); }); }
 
 /* your own place */
@@ -522,7 +546,7 @@ $("run").onclick = async () => {
   drawFrames(); drawMap(); $("scene").classList.remove("show"); $("reopen").classList.remove("show");
   setRolling(true);
   document.querySelectorAll(".frame").forEach(f => f.classList.add("rolling"));
-  const body = { selfie: state.selfie, action: state.action, shots: state.shots };
+  const body = { selfie: state.selfie, extra: state.extra, action: state.action, shots: state.shots };
   if (state.place === "custom") { body.place_image = state.placeImage; body.place_text = $("customText").value.trim(); }
   else body.place_id = state.place;
   const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => r.json()).catch(() => ({}));
