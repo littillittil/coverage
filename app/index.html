@@ -105,8 +105,11 @@
   .strip::before, .strip::after { content: ""; position: absolute; left: 10px; right: 10px; height: 6px;
        background: repeating-linear-gradient(90deg, #2a2230 0 10px, transparent 10px 22px); }
   .strip::before { top: 4px; } .strip::after { bottom: 4px; }
-  .frames { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; height: 100%; }
-  .frame { min-height: 0; border-radius: 6px; background: #17121b; overflow: hidden; position: relative; border: 2px solid transparent; }
+  .frames { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; align-content: center; }
+  .frames.two { grid-template-columns: repeat(6, 1fr); margin: 0 auto; }
+  .frames.two .frame { grid-column: span 2; }
+  .frames.two .frame:nth-child(4) { grid-column: 2 / span 2; }
+  .frame { aspect-ratio: 16/9; border-radius: 6px; background: #17121b; overflow: hidden; position: relative; border: 2px solid transparent; }
   .frame img, .frame video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
   .frame .lbl { position: absolute; left: 5px; bottom: 5px; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 5px; color: #171a21; }
   .frame .num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--faint); font-weight: 800; font-size: 18px; }
@@ -428,10 +431,20 @@ function drawMap() {
 function setRolling(on) { SET.cams.forEach(c => { if (c.goal) { c.rolling = on; if (on) c.wrapped = false; } }); }
 function setWrapped(i) { const c = SET.cams[i]; if (c) { c.rolling = false; c.wrapped = true; } }
 
-/* film strip */
+/* film strip: one row of five, or 3 + 2 when the strip is tall */
+function fitStrip() {
+  const st = document.querySelector(".strip"), fr = $("frames"); if (!st || innerWidth <= 920) return;
+  const w = st.clientWidth - 20, h = st.clientHeight - 32;
+  const one = Math.min(h, (w - 32) / 5 * 9 / 16);           // frame height in one row
+  const two = Math.min((h - 8) / 2, (w - 16) / 3 * 9 / 16);  // frame height in two rows
+  fr.classList.toggle("two", two > one * 1.15);
+  fr.style.width = fr.classList.contains("two") ? Math.round(two * 16 / 9 * 3 + 16) + "px" : "100%";
+}
+addEventListener("resize", fitStrip);
 function drawFrames() {
   $("frames").innerHTML = [0, 1, 2, 3, 4].map(i => {
     const s = LIB.shots.find(x => x.id === state.shots[i]);
+    setTimeout(fitStrip);
     return `<div class="frame" data-i="${i}"><div class="num">${s ? "" : i + 1}</div>${s ? `<span class="lbl" style="background:var(${COLORS[i]})">${s.name.toUpperCase()}</span>` : ""}</div>`;
   }).join("");
 }
