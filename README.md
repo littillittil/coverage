@@ -2,6 +2,8 @@
 
 **One photo. Pick a place. Your own film crew shoots the whole scene.**
 
+▶ **[Watch the demo](https://github.com/littillittil/coverage/raw/main/app/demo.mp4)** (80 seconds)
+
 ![The Coverage app](docs/app.jpg)
 
 On a film set, the director never shoots just one angle. The crew shoots *coverage*: a wide, a medium, a close up, a profile, a low angle. That is what lets an editor cut a scene.
