@@ -22,8 +22,9 @@
   .dot { width: 12px; height: 12px; border-radius: 50%; }
   .tab { margin-left: 14px; display: flex; align-items: center; gap: 8px; padding: 4px 14px; background: var(--panel2); border-radius: 8px; font-size: 13px; color: var(--dim); }
   .wires { display: flex; gap: 2px; } .wires i { width: 4px; height: 10px; border-radius: 2px; display: block; }
-  .head { display: flex; align-items: center; gap: 18px; padding: 14px 28px 0; }
-  .head .right { margin-left: auto; display: flex; align-items: center; gap: 18px; }
+  .head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 18px; padding: 12px 28px 0; }
+  .head .left { display: flex; align-items: center; gap: 18px; min-width: 0; }
+  .head .right { justify-self: end; display: flex; align-items: center; gap: 18px; }
   .head h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: .06em; }
   .head span { color: var(--dim); font-size: 14px; }
   .main { display: grid; grid-template-columns: minmax(250px, 22%) 1fr; gap: 28px; padding: 12px 28px 22px; flex: 1; min-height: 0; }
@@ -149,7 +150,7 @@
   @keyframes glow { 50% { box-shadow: 0 0 34px rgba(100,181,246,.5); } }
   .qr, .demo { white-space: nowrap; flex: 0 0 auto; }
   .qr { display: inline-flex; padding: 0; border-radius: 12px; background: #fff; border: 0; cursor: pointer; overflow: hidden; }
-  .qr img { width: 110px; height: 110px; display: block; }
+  .qr img { width: 128px; height: 128px; display: block; }
   .qr:hover { border-color: var(--faint); }
   .qrpop { display: none; position: fixed; inset: 0; z-index: 21; background: rgba(8,6,10,.92); align-items: center; justify-content: center; flex-direction: column; gap: 18px; cursor: pointer; }
   .qrpop.show { display: flex; animation: rise .3s both; }
@@ -183,12 +184,12 @@
     .drop { aspect-ratio: 1/1; flex: none; } .map { aspect-ratio: 1/1; flex: none; } .strip { flex: none; } .frame { aspect-ratio: 16/9; }
     .window { margin: 0; border-radius: 0; border-left: 0; border-right: 0; }
     .main { grid-template-columns: 1fr; padding: 16px; gap: 20px; }
-    .head { padding: 18px 16px 0; flex-wrap: wrap; gap: 6px 14px; }
+    .head { padding: 18px 16px 0; grid-template-columns: 1fr; gap: 10px; } .head .left { flex-wrap: wrap; } .qr { justify-self: start; }
     .drop { max-width: 320px; }
     .map { max-width: 320px; }
     .frames { grid-template-columns: repeat(3, 1fr); }
     .shotgrid { grid-template-columns: repeat(4, 1fr); }
-    .head .right { margin-left: 0; width: 100%; justify-content: space-between; }
+    .head .right { justify-self: stretch; justify-content: space-between; }
     .wordrow { flex-wrap: wrap; } .wordrow input { flex: 1 1 100%; }
     .row { flex-direction: column-reverse; align-items: stretch; }
   }
@@ -200,8 +201,8 @@
     <span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>
     <span class="tab"><span class="wires"><i style="background:var(--c1)"></i><i style="background:var(--c2)"></i><i style="background:var(--c3)"></i><i style="background:var(--c4)"></i><i style="background:var(--c5)"></i></span>Coverage</span>
   </div>
-  <div class="head"><h1>COVERAGE</h1><span>one photo in, the whole scene out</span>
-    <button class="demo" id="demoBtn"><span class="play"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 1l7 4-7 4z" fill="#171a21"/></svg></span>Watch demo</button>
+  <div class="head"><div class="left"><h1>COVERAGE</h1><span>one photo in, the whole scene out</span>
+    <button class="demo" id="demoBtn"><span class="play"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 1l7 4-7 4z" fill="#171a21"/></svg></span>Watch demo</button></div>
     <button class="qr" id="qrBtn" title="littil.ai"><img src="qr_littil_ai.png" alt="QR code for littil.ai"></button>
     <div class="right"><div class="status" id="status">Add your photo and pick a place.</div><span class="reopen" id="reopen">Watch the scene</span>
       <button class="run" id="run"><span class="rec"></span><span id="runLabel">Run</span></button></div></div>
