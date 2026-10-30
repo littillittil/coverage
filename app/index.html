@@ -130,6 +130,17 @@
   .scene .box { width: min(1200px, 100%); }
   .scene video { width: 100%; max-height: 80vh; border-radius: 14px; display: block; background: #000; }
   .scene .x { background: none; border: 0; color: var(--dim); font-size: 26px; cursor: pointer; margin-left: 16px; }
+  .demo { display: inline-flex; align-items: center; gap: 9px; padding: 9px 18px 9px 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px; font-weight: 700;
+          color: var(--text); background: linear-gradient(var(--panel2), var(--panel2)) padding-box, linear-gradient(120deg, var(--c1), var(--c2), var(--c3), var(--c4), var(--c5)) border-box;
+          border: 2px solid transparent; box-shadow: 0 0 22px rgba(179,157,219,.35); animation: glow 2.6s ease-in-out infinite; }
+  .demo .play { width: 22px; height: 22px; border-radius: 50%; background: var(--text); display: inline-flex; align-items: center; justify-content: center; }
+  .demo:hover { box-shadow: 0 0 34px rgba(255,156,249,.55); }
+  @keyframes glow { 50% { box-shadow: 0 0 34px rgba(100,181,246,.5); } }
+  .demopop { display: none; position: fixed; inset: 0; z-index: 20; background: rgba(8,6,10,.9); align-items: center; justify-content: center; padding: 30px; }
+  .demopop.show { display: flex; animation: rise .3s both; }
+  .demopop .box { width: min(1280px, 100%); position: relative; }
+  .demopop video { width: 100%; max-height: 84vh; border-radius: 14px; display: block; background: #000; box-shadow: 0 30px 90px rgba(0,0,0,.6); }
+  .demopop .x { position: absolute; top: -40px; right: 0; background: none; border: 0; color: var(--dim); font-size: 28px; cursor: pointer; }
   .reopen { display: none; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; }
   .reopen.show { display: inline; }
   .scene .top { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px; }
@@ -171,6 +182,7 @@
     <span class="tab"><span class="wires"><i style="background:var(--c1)"></i><i style="background:var(--c2)"></i><i style="background:var(--c3)"></i><i style="background:var(--c4)"></i><i style="background:var(--c5)"></i></span>Coverage</span>
   </div>
   <div class="head"><h1>COVERAGE</h1><span>one photo in, the whole scene out</span>
+    <button class="demo" id="demoBtn"><span class="play"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 1l7 4-7 4z" fill="#171a21"/></svg></span>Watch demo</button>
     <div class="right"><div class="status" id="status">Add your photo and pick a place.</div><span class="reopen" id="reopen">Watch the scene</span>
       <button class="run" id="run"><span class="rec"></span><span id="runLabel">Run</span></button></div></div>
 
@@ -222,6 +234,8 @@
 </div>
 <div class="foot"><span class="logo">C</span>made in ComfyUI · every model open weights</div>
 
+<div class="demopop" id="demoPop"><div class="box"><button class="x" id="demoClose">×</button>
+  <video id="demoVideo" src="demo.mp4" preload="none" playsinline controls></video></div></div>
 <div class="scene" id="scene"><div class="box">
   <div class="top"><a id="dl" download="coverage_scene.mp4">Download</a><button class="x" id="closeScene">×</button></div>
   <video id="sceneVideo" controls playsinline></video></div></div>
@@ -451,6 +465,14 @@ function drawFrames() {
 
 $("closeScene").onclick = () => { $("scene").classList.remove("show"); $("sceneVideo").pause(); };
 $("reopen").onclick = () => { $("scene").classList.add("show"); $("sceneVideo").play().catch(() => {}); };
+
+/* watch demo: pops up with sound, closes itself at the end */
+function closeDemo() { $("demoPop").classList.remove("show"); $("demoVideo").pause(); }
+$("demoBtn").onclick = () => { const v = $("demoVideo"); $("demoPop").classList.add("show"); v.currentTime = 0; v.muted = false; v.play().catch(() => {}); };
+$("demoVideo").onended = closeDemo;
+$("demoClose").onclick = closeDemo;
+$("demoPop").onclick = e => { if (e.target === $("demoPop")) closeDemo(); };
+addEventListener("keydown", e => { if (e.key === "Escape") { closeDemo(); $("scene").classList.remove("show"); } });
 
 function readFile(f, cb) { const r = new FileReader(); r.onload = () => cb(r.result); r.readAsDataURL(f); }
 
