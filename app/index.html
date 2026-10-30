@@ -131,14 +131,14 @@
   .row { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; gap: 20px; }
   .status { color: var(--dim); font-size: 14px; min-height: 20px; }
   .run { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 190px; border: 0; border-radius: 16px; padding: 15px 40px;
-         font: inherit; font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; color: #0b1020;
-         background: linear-gradient(180deg, #a9d1ff 0%, #60a5fa 45%, #3b82f6 100%);
-         box-shadow: 0 6px 0 #1d4ed8, 0 12px 26px rgba(59,130,246,.45), inset 0 2px 0 rgba(255,255,255,.65), inset 0 -3px 0 rgba(0,0,0,.12);
-         transform: translateY(-3px); transition: transform .08s, box-shadow .08s, filter .2s; text-shadow: 0 1px 0 rgba(255,255,255,.4); }
+         font: inherit; font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; color: #fff;
+         background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 55%, #1e3a8a 100%);
+         box-shadow: 0 6px 0 #172554, 0 12px 26px rgba(29,78,216,.5), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.2);
+         transform: translateY(-3px); transition: transform .08s, box-shadow .08s, filter .2s; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
   .run:not(.ready):not(.rolling) { filter: saturate(.35) brightness(.8); }
   .run.ready { animation: ready 2.2s ease-in-out infinite; }
-  @keyframes ready { 50% { box-shadow: 0 6px 0 #1d4ed8, 0 12px 40px rgba(96,165,250,.75), inset 0 2px 0 rgba(255,255,255,.65), inset 0 -3px 0 rgba(0,0,0,.12); } }
-  .run:active { transform: translateY(3px); box-shadow: 0 0 0 #1d4ed8, 0 4px 10px rgba(59,130,246,.35), inset 0 2px 0 rgba(255,255,255,.5); }
+  @keyframes ready { 50% { box-shadow: 0 6px 0 #172554, 0 12px 40px rgba(59,130,246,.75), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.2); } }
+  .run:active { transform: translateY(3px); box-shadow: 0 0 0 #172554, 0 4px 10px rgba(29,78,216,.35), inset 0 2px 0 rgba(255,255,255,.3); }
   .run.rolling { color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.3); background: linear-gradient(180deg, #ff8a8a 0%, #ef4444 50%, #c81e1e 100%);
                  box-shadow: 0 6px 0 #8f1414, 0 12px 26px rgba(239,68,68,.45), inset 0 2px 0 rgba(255,255,255,.45), inset 0 -3px 0 rgba(0,0,0,.15); }
   .run.rolling { animation: none; }
