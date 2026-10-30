@@ -52,10 +52,10 @@
   /* set map */
   .map { flex: 1 1 50%; min-height: 160px; display: flex; align-items: center; justify-content: center; margin-top: 12px; background: var(--panel2); border-radius: 16px; padding: 10px; border: 1px solid var(--line); }
   .map svg { width: 100%; height: 100%; display: block; }
-  .cam { transition: transform .6s cubic-bezier(.2,.8,.2,1), opacity .4s; }
-  .cam .tally { opacity: 0; }
-  .cam.rolling .tally { opacity: 1; animation: blink 1s infinite; }
-  .cam.wrapped .body { filter: brightness(1.15); }
+  .map { position: relative; cursor: grab; padding: 0; overflow: hidden; }
+  .map:active { cursor: grabbing; }
+  .map canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
+  .map .tip { position: absolute; left: 12px; bottom: 10px; font-size: 10px; font-weight: 700; letter-spacing: .14em; color: var(--faint); pointer-events: none; }
   @keyframes blink { 50% { opacity: .15; } }
 
   /* places */
@@ -181,7 +181,7 @@
         </div>
       </div>
       <input type="file" id="file" accept="image/*" hidden>
-      <div class="map"><svg id="map" viewBox="0 0 300 300"></svg></div>
+      <div class="map" id="map"><span class="tip">DRAG TO LOOK AROUND THE SET</span></div>
     </div>
 
     <div>
@@ -238,6 +238,7 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const COLORS = ["--c1", "--c2", "--c3", "--c4", "--c5"];
 const DEFAULT_SHOTS = ["wide", "medium", "close_up", "profile", "low_angle"];
@@ -319,29 +320,113 @@ function drawShots() {
   });
 }
 
-/* the set map: you in the middle, each camera where it really stands */
-function camPos(s) {
-  const r = 36 + (10 - Math.min(10, s.zoom)) * 9.5, a = s.h * Math.PI / 180;
-  return { x: 150 + r * Math.sin(a), y: 150 + r * Math.cos(a), rot: -s.h, r };
-}
-function drawMap() {
-  const shots = state.shots.map(id => LIB.shots.find(s => s.id === id)).filter(Boolean);
-  let svg = `<defs><radialGradient id="floor"><stop offset="0" stop-color="#3a2f44"/><stop offset="1" stop-color="#2c2334"/></radialGradient></defs>
-    <circle cx="150" cy="150" r="140" fill="url(#floor)"/>
-    ${[46, 86, 126].map(r => `<circle cx="150" cy="150" r="${r}" fill="none" stroke="#483c54" stroke-dasharray="2 5"/>`).join("")}
-    <text x="150" y="292" text-anchor="middle" fill="#6f6779" font-size="9" font-weight="700" letter-spacing="2">FRONT</text>
-    <ellipse cx="150" cy="150" rx="14" ry="8" fill="#6f6779"/><circle cx="150" cy="150" r="7" fill="#f0f1ec"/><circle cx="150" cy="158" r="1.8" fill="#f0f1ec"/>
-    <text x="150" y="128" text-anchor="middle" fill="#a9afba" font-size="9" font-weight="700" letter-spacing="2">YOU</text>`;
-  shots.forEach((s, i) => {
-    const p = camPos(s), col = css(COLORS[i]), up = s.v >= 30, low = s.v < 0;
-    svg += `<g class="cam" id="cam${i}" style="transform:translate(${p.x}px,${p.y}px)">
-      ${up ? `<circle r="15" fill="none" stroke="${col}" stroke-dasharray="3 3" opacity=".8"/>` : ""}
-      <g transform="rotate(${p.rot})"><g class="body"><rect x="-7" y="-1" width="14" height="11" rx="3" fill="${col}"/><path d="M-4 -1 L4 -1 L8 -9 L-8 -9z" fill="${col}" opacity=".75"/><path d="M0 -9 L0 -${p.r - 16}" stroke="${col}" stroke-width="1" stroke-dasharray="1 3" opacity=".5"/></g></g>
-      <circle class="tally" cx="7" cy="-8" r="3.5" fill="#ff3b3b"/>
-      <text y="${up ? 26 : 22}" text-anchor="middle" fill="${col}" font-size="9" font-weight="800">${i + 1}${up ? " ↑" : low ? " ↓" : ""}</text></g>`;
+/* the set: a 3D stage you can spin. You in the middle, each camera where it really stands. */
+const SET = { cams: [], ready: false };
+function initSet() {
+  const host = $("map");
+  if (!window.THREE) { host.insertAdjacentHTML("beforeend", "<span class='tip' style='top:12px'>3D needs internet</span>"); return; }
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+  host.prepend(renderer.domElement);
+  const scene = new THREE.Scene();
+  const view = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+  scene.add(new THREE.HemisphereLight(0xf0f1ec, 0x2c2334, 1.0));
+  const key = new THREE.DirectionalLight(0xffffff, 0.7); key.position.set(3, 6, 4); scene.add(key);
+
+  // floor and rings
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(5.2, 64), new THREE.MeshStandardMaterial({ color: 0x2c2334, roughness: 1 }));
+  floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  [1.6, 3.0, 4.4].forEach(r => {
+    const ring = new THREE.Mesh(new THREE.RingGeometry(r - 0.012, r + 0.012, 96), new THREE.MeshBasicMaterial({ color: 0x5a4c68 }));
+    ring.rotation.x = -Math.PI / 2; ring.position.y = 0.002; scene.add(ring);
   });
-  $("map").innerHTML = svg;
+  const front = new THREE.Mesh(new THREE.PlaneGeometry(0.05, 0.9), new THREE.MeshBasicMaterial({ color: 0x6f6779 }));
+  front.rotation.x = -Math.PI / 2; front.position.set(0, 0.003, 4.85); scene.add(front);
+
+  // you: a simple stand in, facing front (+z)
+  const skin = new THREE.MeshStandardMaterial({ color: 0xf0f1ec, roughness: .6 });
+  const you = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.26, 1.0, 24), new THREE.MeshStandardMaterial({ color: 0x8b7f99, roughness: .8 }));
+  body.position.y = 0.5; you.add(body);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 16), skin); head.position.y = 1.2; you.add(head);
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 8), skin); nose.position.set(0, 1.2, 0.17); you.add(nose);
+  scene.add(you);
+  const TARGET = new THREE.Vector3(0, 1.1, 0);
+
+  // five cameras
+  for (let i = 0; i < 5; i++) {
+    const col = new THREE.Color(css(COLORS[i]));
+    const mat = new THREE.MeshStandardMaterial({ color: col, roughness: .45, metalness: .1 });
+    const g = new THREE.Group();
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.42), mat); g.add(box);
+    const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 0.18, 20), mat); lens.rotation.x = Math.PI / 2; lens.position.z = -0.3; g.add(lens);
+    const mag = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.06, 20), mat); mag.rotation.z = Math.PI / 2; mag.position.set(0, 0.2, 0.05); g.add(mag);
+    const tally = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 8), new THREE.MeshBasicMaterial({ color: 0xff3b3b }));
+    tally.position.set(0.12, 0.14, -0.2); tally.visible = false; g.add(tally);
+    const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+    const line = new THREE.Line(lineGeo, new THREE.LineDashedMaterial({ color: col, dashSize: 0.08, gapSize: 0.08, transparent: true, opacity: .6 }));
+    scene.add(line);
+    const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 1, 6), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: .35 }));
+    scene.add(stand);
+    g.visible = false; line.visible = false; stand.visible = false;
+    scene.add(g);
+    SET.cams.push({ g, tally, line, stand, pos: new THREE.Vector3(0, 1, 5), goal: null, rolling: false, wrapped: false });
+  }
+
+  // orbit by drag, zoom by wheel, slow turn while idle
+  let az = 2.5, el = 0.78, dist = 11, fitDist = 11, dragging = false, lastX = 0, lastY = 0, idle = 0;
+  host.addEventListener("pointerdown", e => { dragging = true; lastX = e.clientX; lastY = e.clientY; host.setPointerCapture(e.pointerId); idle = 0; });
+  host.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    az -= (e.clientX - lastX) * 0.008; el = Math.min(1.45, Math.max(0.08, el + (e.clientY - lastY) * 0.006));
+    lastX = e.clientX; lastY = e.clientY;
+  });
+  host.addEventListener("pointerup", () => { dragging = false; idle = 0; });
+  host.addEventListener("wheel", e => { e.preventDefault(); dist = Math.min(fitDist * 1.6, Math.max(4, dist + e.deltaY * 0.01)); }, { passive: false });
+
+  function size() {
+    const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h, false); view.aspect = w / h; view.updateProjectionMatrix();
+    const half = Math.min(Math.tan(THREE.MathUtils.degToRad(view.fov / 2)), Math.tan(THREE.MathUtils.degToRad(view.fov / 2)) * view.aspect);
+    fitDist = Math.min(24, Math.max(7, 5.4 / half)); dist = fitDist;
+  }
+  new ResizeObserver(size).observe(host); size();
+
+  let t = 0;
+  (function loop() {
+    t += 1 / 60; idle += 1 / 60;
+    if (!dragging && idle > 3) az += 0.0025;
+    view.position.set(dist * Math.cos(el) * Math.sin(az), 0.6 + dist * Math.sin(el), dist * Math.cos(el) * Math.cos(az));
+    view.lookAt(0, 0.7, 0);
+    SET.cams.forEach(c => {
+      if (!c.goal) return;
+      c.pos.lerp(c.goal, 0.08);
+      c.g.position.copy(c.pos); c.g.lookAt(TARGET); c.g.rotateY(Math.PI);
+      c.line.geometry.setFromPoints([c.pos.clone(), TARGET]); c.line.computeLineDistances();
+      c.stand.position.set(c.pos.x, c.pos.y / 2, c.pos.z); c.stand.scale.y = Math.max(0.01, c.pos.y);
+      c.tally.visible = c.wrapped || (c.rolling && Math.sin(t * 7) > 0);
+      c.tally.material.color.set(c.wrapped ? 0x81c784 : 0xff3b3b);
+    });
+    renderer.render(scene, view);
+    requestAnimationFrame(loop);
+  })();
+  SET.ready = true;
 }
+
+function drawMap() {
+  if (!SET.ready) initSet();
+  if (!SET.ready) return;
+  const shots = state.shots.map(id => LIB.shots.find(s => s.id === id));
+  SET.cams.forEach((c, i) => {
+    const s = shots[i];
+    const on = !!s; c.g.visible = c.line.visible = c.stand.visible = on;
+    c.rolling = false; c.wrapped = false;
+    if (!s) { c.goal = null; return; }
+    const d = 1.4 + (10 - Math.min(10, s.zoom)) * 0.33, h = s.h * Math.PI / 180, v = s.v * Math.PI / 180;
+    c.goal = new THREE.Vector3(d * Math.cos(v) * Math.sin(h), Math.max(0.12, 1.1 + d * Math.sin(v)), d * Math.cos(v) * Math.cos(h));
+  });
+}
+function setRolling(on) { SET.cams.forEach(c => { if (c.goal) { c.rolling = on; if (on) c.wrapped = false; } }); }
+function setWrapped(i) { const c = SET.cams[i]; if (c) { c.rolling = false; c.wrapped = true; } }
 
 /* film strip */
 function drawFrames() {
@@ -400,7 +485,7 @@ $("run").onclick = async () => {
   if (!canRun()) { $("status").textContent = !state.selfie ? "Add your photo first." : !state.place ? "Pick a place first." : "Pick five shots."; return; }
   $("run").disabled = true; $("run").classList.add("rolling"); $("runLabel").textContent = "Rolling";
   drawFrames(); drawMap(); $("scene").classList.remove("show"); $("reopen").classList.remove("show");
-  document.querySelectorAll(".cam").forEach(c => c.classList.add("rolling"));
+  setRolling(true);
   document.querySelectorAll(".frame").forEach(f => f.classList.add("rolling"));
   const body = { selfie: state.selfie, action: state.action, shots: state.shots };
   if (state.place === "custom") { body.place_image = state.placeImage; body.place_text = $("customText").value.trim(); }
@@ -414,12 +499,12 @@ function poll(id, t0) {
   fetch(`/api/run/${id}`).then(r => r.json()).then(r => {
     const f = r.files || {}, mins = Math.floor((Date.now() - t0) / 60000);
     [0, 1, 2, 3, 4].forEach(i => {
-      const box = $("frames").children[i], cam = $(`cam${i}`), lbl = box.querySelector(".lbl")?.outerHTML || "";
+      const box = $("frames").children[i], lbl = box.querySelector(".lbl")?.outerHTML || "";
       const vid = f[`shot_${i + 1}`], still = f[`still_${i + 1}`];
       if (vid && box.dataset.v !== "1") {
         box.innerHTML = `<video src="${vid}" autoplay loop muted playsinline></video>${lbl}`;
         box.dataset.v = "1"; box.classList.remove("rolling"); box.style.borderColor = `var(${COLORS[i]})`;
-        cam && (cam.classList.remove("rolling"), cam.classList.add("wrapped"));
+        setWrapped(i);
       } else if (still && !box.dataset.s) {
         box.innerHTML = `<img src="${still}"><div class="num"></div>${lbl}`; box.dataset.s = "1";
       }
@@ -440,7 +525,7 @@ function poll(id, t0) {
 }
 function fail(msg) {
   $("status").textContent = "Something broke: " + (msg || "unknown");
-  document.querySelectorAll(".cam, .frame").forEach(c => c.classList.remove("rolling")); reset();
+  document.querySelectorAll(".frame").forEach(c => c.classList.remove("rolling")); setRolling(false); reset();
 }
 function reset() { $("run").disabled = false; $("run").classList.remove("rolling"); $("runLabel").textContent = "Run"; }
 </script>
